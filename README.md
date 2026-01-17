@@ -19,9 +19,9 @@ View your app in AI Studio: https://ai.studio/apps/drive/1yVf9yDcsF1ct2xEkpnkReS
 3. Run the app:
    `npm run dev`
 
-### Optional settings API
+### Settings API (required)
 
-By default, settings are stored in `localStorage`. If you want to persist settings on a server,
-start the API (`npm run server`) and set `VITE_API_URL` (e.g. `http://localhost:3034/api/settings` or `/api/settings`).
-When using a relative URL, the dev server proxies `/api` to `VITE_API_PROXY_TARGET` (default:
-`http://localhost:3034`). This uses the SQLite-backed `settings.db` by default (override with `DB_FILE`). 
+Settings are persisted in the database via the settings API. Start the API (`npm run server`) and set
+`VITE_API_URL` (e.g. `http://localhost:3034/api/settings` or `/api/settings`). When using a relative URL, the dev
+server proxies `/api` to `VITE_API_PROXY_TARGET` (default: `http://localhost:3034`). This uses the SQLite-backed
+`settings.db` by default (override with `DB_FILE`). 
