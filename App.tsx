@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Settings, Activity, Search, MapPin, Layout, ArrowRightLeft, Check, X, Trash2, RotateCcw, Save, Pencil, WifiOff } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Settings, Activity, Search, MapPin, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, WifiOff } from 'lucide-react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -17,8 +17,6 @@ const API_URL = (() => {
     if (envUrl) return envUrl;
     return null;
 })();
-
-const STORAGE_KEY = 'homepage-settings';
 
 const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
@@ -76,27 +74,12 @@ const App: React.FC = () => {
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
   }, []);
 
-  const loadFromStorage = useCallback(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        applySettings({});
-        return;
-      }
-      const parsed = JSON.parse(raw);
-      applySettings(parsed);
-    } catch (err) {
-      console.error(err);
-      applySettings({});
-    }
-  }, [applySettings]);
-
   const fetchSettings = useCallback(async () => {
       if (!API_URL) {
-        loadFromStorage();
+        applySettings({});
         setIsLoaded(true);
         setServerError(false);
-        setCanSync(true);
+        setCanSync(false);
         return;
       }
 
@@ -112,12 +95,12 @@ const App: React.FC = () => {
           setCanSync(true);
       } catch (err) {
           console.error(err);
-          loadFromStorage();
+          applySettings({});
           setIsLoaded(true);
           setServerError(true);
           setCanSync(false);
       }
-  }, [loadFromStorage, applySettings]);
+  }, [applySettings]);
 
   useEffect(() => {
     fetchSettings();
@@ -135,10 +118,7 @@ const App: React.FC = () => {
             enableSearchPreview
         };
 
-        if (!API_URL || !canSync) {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-          return;
-        }
+        if (!API_URL || !canSync) return;
 
         try {
             await fetch(API_URL, {
@@ -149,7 +129,6 @@ const App: React.FC = () => {
             setServerError(false);
         } catch (err) {
             console.error("Failed to save:", err);
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
             setServerError(true);
             setCanSync(false);
         }
@@ -186,11 +165,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#050505] text-white font-sans overflow-hidden flex flex-col relative selection:bg-purple-500/30">
+    <div className="h-[100dvh] w-full bg-[#050505] text-white font-sans overflow-hidden flex flex-col relative selection:bg-purple-500/30 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom,_rgba(168,85,247,0.12),_transparent_45%)]">
         {/* Fixed Background */}
         <div className="absolute inset-0 pointer-events-none z-0">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/10 rounded-full blur-[120px]" />
+            <div className="absolute top-[-20%] left-[-10%] w-[45%] h-[45%] bg-blue-600/10 rounded-full blur-[140px]" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[45%] h-[45%] bg-purple-700/10 rounded-full blur-[160px]" />
         </div>
 
         {/* Server Error Indicator */}
@@ -210,41 +189,47 @@ const App: React.FC = () => {
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
-            <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1600px] mx-auto pb-32 md:pb-8">
+            <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1500px] mx-auto pb-32 md:pb-10 gap-6 md:gap-10">
                 
                 {/* Top Bar (Actions) - Made subtle */}
-                <div className="flex justify-end gap-1 mb-4 md:mb-8 shrink-0">
-                    <button 
-                        onClick={() => setIsGlobalSettingsOpen(true)}
-                        className="p-3 md:p-2 rounded-full text-white/20 hover:text-white transition-colors active:scale-95"
-                        title="Settings"
-                    >
-                        <Settings className="w-6 h-6 md:w-5 md:h-5" />
-                    </button>
-                    <button 
-                        onClick={() => setIsAddModalOpen(true)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-full text-white/20 hover:text-white transition-colors active:scale-95"
-                        title="Add Widget"
-                    >
-                        <Plus className="w-7 h-7 md:w-5 md:h-5" />
-                        <span className="text-sm font-medium hidden md:inline">Add Widget</span>
-                    </button>
+                <div className="flex items-center justify-between gap-2 shrink-0">
+                    <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/50 backdrop-blur-xl">
+                        <span className={`h-2 w-2 rounded-full ${serverError ? 'bg-red-400' : 'bg-emerald-400 animate-pulse'}`} />
+                        <span>{serverError ? 'Sync paused' : 'Cloud sync active'}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <button 
+                            onClick={() => setIsGlobalSettingsOpen(true)}
+                            className="p-3 md:p-2 rounded-full text-white/30 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
+                            title="Settings"
+                        >
+                            <Settings className="w-6 h-6 md:w-5 md:h-5" />
+                        </button>
+                        <button 
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-full text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/20 border border-white/10"
+                            title="Add Widget"
+                        >
+                            <Plus className="w-7 h-7 md:w-5 md:h-5" />
+                            <span className="text-sm font-medium hidden md:inline">Add Widget</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Header (Title) */}
                 {showTitle && (
-                    <div className="w-full flex justify-center mt-2 md:mt-10 mb-8 shrink-0">
+                    <div className="w-full flex justify-center mt-2 md:mt-6 shrink-0">
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-7xl font-bold bg-transparent text-center border-none outline-none text-white/90 placeholder-white/20 tracking-tighter w-full max-w-3xl hover:bg-white/5 rounded-2xl transition-colors px-2 md:px-4 py-2"
+                            className="text-4xl md:text-7xl font-bold bg-white/[0.02] text-center border border-transparent outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/5 hover:border-white/10 focus:border-purple-500/40 rounded-[28px] transition-colors px-4 md:px-6 py-3"
                             placeholder="Dashboard Name"
                         />
                     </div>
                 )}
 
                 {/* Desktop Search Bar (Hidden on Mobile inside scroll view) */}
-                <div className="hidden md:flex w-full justify-center mb-16 shrink-0">
+                <div className="hidden md:flex w-full justify-center shrink-0">
                     <SearchBar enablePreview={enableSearchPreview} />
                 </div>
 
@@ -263,7 +248,7 @@ const App: React.FC = () => {
                         axis="y" 
                         values={widgets} 
                         onReorder={setWidgets} 
-                        className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 list-none p-0 m-0"
+                        className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -286,7 +271,7 @@ const App: React.FC = () => {
                                     className={`
                                         relative group list-none rounded-3xl
                                         ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
-                                        h-[150px] md:h-[180px]
+                                        h-[160px] md:h-[190px]
                                     `}
                                     as="li"
                                 >
@@ -371,10 +356,12 @@ const WidgetCard: React.FC<{
         <motion.div 
             layoutId={layoutId}
             className={`
-                w-full h-full relative overflow-hidden backdrop-blur-md border border-white/5 hover:border-white/20 transition-all shadow-sm hover:shadow-2xl group rounded-3xl
+                w-full h-full relative overflow-hidden backdrop-blur-md border border-white/5 hover:border-white/20 transition-all shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] hover:shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)] group rounded-3xl
                 ${bgClass}
             `}
         >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/30 opacity-70" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_55%)]" />
             <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                  <button 
                         onClick={(e) => { e.stopPropagation(); onEditStart(); }}
@@ -383,7 +370,7 @@ const WidgetCard: React.FC<{
                         <Settings className="w-3 h-3" />
                     </button>
             </div>
-            <div className="h-full w-full pointer-events-none">{children}</div>
+            <div className="relative h-full w-full pointer-events-none">{children}</div>
             <div 
                 className="absolute inset-0 z-10 pointer-events-auto cursor-pointer" 
                 onDoubleClick={onEditStart}
