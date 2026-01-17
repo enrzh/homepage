@@ -30,11 +30,15 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config }) => {
                 if (!navigator.geolocation) {
                     throw new Error("Geolocation not supported");
                 }
-                
+
+                if (!window.isSecureContext) {
+                    throw new Error("Geolocation requires a secure origin (HTTPS or localhost)");
+                }
+
                 const position = await new Promise<GeolocationPosition>((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject);
                 });
-                
+
                 lat = position.coords.latitude;
                 lon = position.coords.longitude;
                 locationName = "Local Weather";
@@ -47,7 +51,13 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config }) => {
 
         } catch (err) {
             console.error(err);
-            setError(config.city ? `Could not load ${config.city}` : "Location access denied");
+            if (config.city) {
+                setError(`Could not load ${config.city}`);
+            } else if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Location access denied");
+            }
         } finally {
             setLoading(false);
         }
