@@ -16,5 +16,8 @@ View your app in AI Studio: https://ai.studio/apps/drive/1yVf9yDcsF1ct2xEkpnkReS
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+3. Start the settings API with a Postgres database:
+   - With Docker: `docker compose up --build db api`
+   - Or locally, set `DATABASE_URL` and run `npm run server`
+4. Run the app:
    `npm run dev`
