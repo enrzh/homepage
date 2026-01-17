@@ -1,0 +1,7 @@
+{
+  "name": "Nexus Dashboard",
+  "description": "A highly customizable, developer-centric browser homepage with integrated Gemini AI, real-time widgets, and search engine selection.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
