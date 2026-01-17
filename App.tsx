@@ -59,39 +59,44 @@ const App: React.FC = () => {
   // System State
   const [isLoaded, setIsLoaded] = useState(false);
   const [serverError, setServerError] = useState(false);
+  const [canSync, setCanSync] = useState(true);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isGlobalSettingsOpen, setIsGlobalSettingsOpen] = useState(false);
   const [editingWidgetId, setEditingWidgetId] = useState<string | null>(null);
 
   // Load Settings from Server
-  useEffect(() => {
-    const fetchSettings = async () => {
-        try {
-            const res = await fetch(API_URL);
-            if (!res.ok) throw new Error('Failed to fetch settings');
-            const data = await res.json();
-            
-            setWidgets(data.widgets || DEFAULT_WIDGETS);
-            setAppTitle(data.appTitle || 'Nexus');
-            setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
-            setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
-            
-            setIsLoaded(true);
-            setServerError(false);
-        } catch (err) {
-            console.error(err);
-            setServerError(true);
-            // Fallback to defaults or localstorage if we wanted, but sticking to server-first
-            setIsLoaded(true); 
-        }
-    };
-    fetchSettings();
+  const fetchSettings = useCallback(async () => {
+      try {
+          const res = await fetch(API_URL);
+          if (!res.ok) throw new Error('Failed to fetch settings');
+          const data = await res.json();
+          
+          setWidgets(data.widgets || DEFAULT_WIDGETS);
+          setAppTitle(data.appTitle || 'Nexus');
+          setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
+          setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
+          
+          setIsLoaded(true);
+          setServerError(false);
+          setCanSync(true);
+      } catch (err) {
+          console.error(err);
+          setServerError(true);
+          setCanSync(false);
+          // Fallback to defaults or localstorage if we wanted, but sticking to server-first
+          setIsLoaded(true); 
+      }
   }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   // Save Settings to Server (Debounced)
   useEffect(() => {
-    if (!isLoaded) return; // Don't save before initial load
+    if (!isLoaded || !canSync) return; // Don't save before initial load or when sync is paused
 
     const saveData = async () => {
         try {
@@ -110,12 +115,19 @@ const App: React.FC = () => {
         } catch (err) {
             console.error("Failed to save:", err);
             setServerError(true);
+            setCanSync(false);
         }
     };
 
     const timer = setTimeout(saveData, 1000); // Debounce for 1 second
     return () => clearTimeout(timer);
-  }, [widgets, appTitle, showTitle, enableSearchPreview, isLoaded]);
+  }, [widgets, appTitle, showTitle, enableSearchPreview, isLoaded, canSync]);
+
+  const retrySync = async () => {
+      setIsRetrying(true);
+      await fetchSettings();
+      setIsRetrying(false);
+  };
 
 
   const addWidget = (type: WidgetType) => {
@@ -150,6 +162,13 @@ const App: React.FC = () => {
             <div className="fixed top-4 left-4 z-50 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 animate-fade-in backdrop-blur-md">
                 <WifiOff className="w-3 h-3" />
                 <span>Sync Error</span>
+                <button
+                    onClick={retrySync}
+                    disabled={isRetrying}
+                    className="text-red-200/80 hover:text-red-100 disabled:text-red-200/40 transition-colors"
+                >
+                    {isRetrying ? 'Retrying...' : 'Retry'}
+                </button>
             </div>
         )}
 
