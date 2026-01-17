@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const app = express();
-const PORT = process.env.PORT || 3034;
+const PORT = process.env.SETTINGS_PORT || process.env.API_PORT || 3034;
 const dataDir = path.join(process.cwd(), 'server', 'data');
 
 app.use(cors());

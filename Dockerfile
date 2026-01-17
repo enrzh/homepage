@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 3033
 
-CMD ["npm", "run", "dev"]
+CMD ["sh", "./scripts/start-dev.sh"]
