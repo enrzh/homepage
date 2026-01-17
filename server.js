@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import { Pool } from 'pg';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import sqlite3 from 'sqlite3';
 
 const app = express();
 const PORT = process.env.PORT || 3034;
-const DATABASE_URL = process.env.DATABASE_URL;
-
-if (!DATABASE_URL) {
-  throw new Error('DATABASE_URL is required to start the settings API.');
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DB_FILE = process.env.DB_FILE || path.join(__dirname, 'settings.db');
 
 app.use(cors());
 app.use(express.json());
@@ -25,36 +25,58 @@ const DEFAULT_DATA = {
   enableSearchPreview: true,
 };
 
-const pool = new Pool({ connectionString: DATABASE_URL });
+const db = new sqlite3.Database(DB_FILE);
+
+const run = (sql, params = []) =>
+  new Promise((resolve, reject) => {
+    db.run(sql, params, function handleRun(err) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(this);
+    });
+  });
+
+const get = (sql, params = []) =>
+  new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(row);
+    });
+  });
 
 const ensureSettingsRow = async () => {
-  await pool.query(`
+  await run(`
     CREATE TABLE IF NOT EXISTS settings (
       id INTEGER PRIMARY KEY,
-      data JSONB NOT NULL,
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      data TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )
   `);
 
-  const existing = await pool.query('SELECT data FROM settings WHERE id = 1');
-  if (existing.rowCount === 0) {
-    await pool.query('INSERT INTO settings (id, data) VALUES (1, $1)', [DEFAULT_DATA]);
+  const existing = await get('SELECT data FROM settings WHERE id = 1');
+  if (!existing) {
+    await run('INSERT INTO settings (id, data) VALUES (1, ?)', [JSON.stringify(DEFAULT_DATA)]);
   }
 };
 
 const readSettings = async () => {
-  const result = await pool.query('SELECT data FROM settings WHERE id = 1');
-  if (result.rowCount === 0) {
-    await pool.query('INSERT INTO settings (id, data) VALUES (1, $1)', [DEFAULT_DATA]);
+  const row = await get('SELECT data FROM settings WHERE id = 1');
+  if (!row) {
+    await run('INSERT INTO settings (id, data) VALUES (1, ?)', [JSON.stringify(DEFAULT_DATA)]);
     return DEFAULT_DATA;
   }
-  return result.rows[0].data;
+  return JSON.parse(row.data);
 };
 
 const writeSettings = async (data) => {
-  await pool.query(
-    'UPDATE settings SET data = $1, updated_at = NOW() WHERE id = 1',
-    [data],
+  await run(
+    "UPDATE settings SET data = ?, updated_at = datetime('now') WHERE id = 1",
+    [JSON.stringify(data)],
   );
 };
 
