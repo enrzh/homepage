@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Type, Search, Eye, EyeOff } from 'lucide-react';
+import { X, Type, Search, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 
 interface GlobalSettingsModalProps {
   isOpen: boolean;
@@ -8,6 +8,10 @@ interface GlobalSettingsModalProps {
   setShowTitle: (show: boolean) => void;
   enableSearchPreview: boolean;
   setEnableSearchPreview: (enable: boolean) => void;
+  canSync: boolean;
+  serverError: boolean;
+  isRetrying: boolean;
+  onRetrySync: () => void;
 }
 
 const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
@@ -17,8 +21,24 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
   setShowTitle,
   enableSearchPreview,
   setEnableSearchPreview,
+  canSync,
+  serverError,
+  isRetrying,
+  onRetrySync,
 }) => {
   if (!isOpen) return null;
+
+  const syncStatus = (() => {
+    if (!canSync) {
+      return { label: 'Cloud sync unavailable', detail: 'Server connection not configured', icon: CloudOff, tone: 'text-white/50 bg-white/10 border-white/10' };
+    }
+    if (serverError) {
+      return { label: 'Sync paused', detail: 'Connection error while saving', icon: CloudOff, tone: 'text-red-300 bg-red-500/10 border-red-500/20' };
+    }
+    return { label: 'Cloud sync active', detail: 'All changes are saved automatically', icon: Cloud, tone: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' };
+  })();
+
+  const StatusIcon = syncStatus.icon;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -79,6 +99,31 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                         ${enableSearchPreview ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
+            </div>
+
+            <div className="border-t border-white/10 pt-5">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg border ${syncStatus.tone}`}>
+                            <StatusIcon className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-medium text-white">Cloud Sync</h3>
+                            <p className="text-xs text-white/40">{syncStatus.label}</p>
+                        </div>
+                    </div>
+                    {serverError && (
+                        <button
+                            onClick={onRetrySync}
+                            disabled={isRetrying}
+                            className="px-3 py-2 rounded-lg text-xs font-medium bg-white/10 text-white/70 hover:text-white hover:bg-white/20 disabled:opacity-50 transition-colors flex items-center gap-2"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`} />
+                            {isRetrying ? 'Retrying' : 'Retry'}
+                        </button>
+                    )}
+                </div>
+                <p className="text-xs text-white/30 mt-3">{syncStatus.detail}</p>
             </div>
         </div>
       </div>

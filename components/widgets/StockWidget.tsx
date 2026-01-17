@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AreaChart, Area, ResponsiveContainer, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { StockData, WidgetConfig } from '../../types';
 
@@ -127,11 +127,6 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                             <stop offset="95%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0}/>
                         </linearGradient>
                     </defs>
-                    <YAxis 
-                        domain={['auto', 'auto']} 
-                        hide 
-                        width={0}
-                    />
                     <Tooltip 
                         content={({ active, payload }) => {
                             if (active && payload && payload.length) {
