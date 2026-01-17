@@ -1,14 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import Database from 'better-sqlite3';
+import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import sqlite3 from 'sqlite3';
 
 const app = express();
 const PORT = process.env.PORT || 3034;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DB_FILE = process.env.DB_FILE || path.join(__dirname, 'settings.db');
+const dataDir = path.join(process.cwd(), 'server', 'data');
 
 app.use(cors());
 app.use(express.json());
@@ -25,64 +23,44 @@ const DEFAULT_DATA = {
   enableSearchPreview: true,
 };
 
-const db = new sqlite3.Database(DB_FILE);
+fs.mkdirSync(dataDir, { recursive: true });
+const dbPath = process.env.DB_FILE || path.join(dataDir, 'settings.db');
+const db = new Database(dbPath);
 
-const run = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.run(sql, params, function handleRun(err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(this);
-    });
-  });
+db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )
+`);
 
-const get = (sql, params = []) =>
-  new Promise((resolve, reject) => {
-    db.get(sql, params, (err, row) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(row);
-    });
-  });
+const selectSettings = db.prepare('SELECT data FROM settings WHERE key = ?');
+const upsertSettings = db.prepare(`
+  INSERT INTO settings (key, data, updated_at)
+  VALUES (?, ?, ?)
+  ON CONFLICT(key) DO UPDATE SET
+    data = excluded.data,
+    updated_at = excluded.updated_at
+`);
 
-const ensureSettingsRow = async () => {
-  await run(`
-    CREATE TABLE IF NOT EXISTS settings (
-      id INTEGER PRIMARY KEY,
-      data TEXT NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-  `);
-
-  const existing = await get('SELECT data FROM settings WHERE id = 1');
-  if (!existing) {
-    await run('INSERT INTO settings (id, data) VALUES (1, ?)', [JSON.stringify(DEFAULT_DATA)]);
-  }
+const saveSettings = (key, data) => {
+  const payload = JSON.stringify(data);
+  upsertSettings.run(key, payload, new Date().toISOString());
 };
 
-const readSettings = async () => {
-  const row = await get('SELECT data FROM settings WHERE id = 1');
+const readSettings = (key) => {
+  const row = selectSettings.get(key);
   if (!row) {
-    await run('INSERT INTO settings (id, data) VALUES (1, ?)', [JSON.stringify(DEFAULT_DATA)]);
+    saveSettings(key, DEFAULT_DATA);
     return DEFAULT_DATA;
   }
   return JSON.parse(row.data);
 };
 
-const writeSettings = async (data) => {
-  await run(
-    "UPDATE settings SET data = ?, updated_at = datetime('now') WHERE id = 1",
-    [JSON.stringify(data)],
-  );
-};
-
-app.get('/api/settings', async (req, res) => {
+app.get('/api/settings', (req, res) => {
   try {
-    const data = await readSettings();
+    const data = readSettings('settings');
     res.json(data);
   } catch (err) {
     console.error(err);
@@ -90,10 +68,14 @@ app.get('/api/settings', async (req, res) => {
   }
 });
 
-app.post('/api/settings', async (req, res) => {
+app.post('/api/settings', (req, res) => {
   try {
     const newData = req.body;
-    await writeSettings(newData);
+    if (!newData || typeof newData !== 'object') {
+      res.status(400).json({ error: 'Invalid payload' });
+      return;
+    }
+    saveSettings('settings', newData);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -101,16 +83,6 @@ app.post('/api/settings', async (req, res) => {
   }
 });
 
-const startServer = async () => {
-  try {
-    await ensureSettingsRow();
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
-startServer();
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
