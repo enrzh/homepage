@@ -125,21 +125,22 @@ const App: React.FC = () => {
 
   // Save Settings to Server (Debounced)
   useEffect(() => {
-    if (!isLoaded || !canSync) return; // Don't save before initial load or when sync is paused
+    if (!isLoaded) return; // Don't save before initial load
 
     const saveData = async () => {
+        const payload = {
+            widgets,
+            appTitle,
+            showTitle,
+            enableSearchPreview
+        };
+
+        if (!API_URL || !canSync) {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+          return;
+        }
+
         try {
-            const payload = {
-                widgets,
-                appTitle,
-                showTitle,
-                enableSearchPreview
-            };
-            if (!API_URL) {
-              window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-              setServerError(false);
-              return;
-            }
             await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -148,6 +149,7 @@ const App: React.FC = () => {
             setServerError(false);
         } catch (err) {
             console.error("Failed to save:", err);
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
             setServerError(true);
             setCanSync(false);
         }
