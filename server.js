@@ -49,13 +49,39 @@ const saveSettings = (key, data) => {
   upsertSettings.run(key, payload, new Date().toISOString());
 };
 
+const normalizeSettings = (data) => {
+  if (!data || typeof data !== 'object') {
+    return DEFAULT_DATA;
+  }
+  return {
+    widgets: Array.isArray(data.widgets) ? data.widgets : DEFAULT_DATA.widgets,
+    appTitle: typeof data.appTitle === 'string' ? data.appTitle : DEFAULT_DATA.appTitle,
+    showTitle: typeof data.showTitle === 'boolean' ? data.showTitle : DEFAULT_DATA.showTitle,
+    enableSearchPreview:
+      typeof data.enableSearchPreview === 'boolean'
+        ? data.enableSearchPreview
+        : DEFAULT_DATA.enableSearchPreview,
+  };
+};
+
 const readSettings = (key) => {
   const row = selectSettings.get(key);
   if (!row) {
     saveSettings(key, DEFAULT_DATA);
     return DEFAULT_DATA;
   }
-  return JSON.parse(row.data);
+  try {
+    const parsed = JSON.parse(row.data);
+    const normalized = normalizeSettings(parsed);
+    if (normalized === DEFAULT_DATA) {
+      saveSettings(key, DEFAULT_DATA);
+    }
+    return normalized;
+  } catch (error) {
+    console.error('Failed to parse settings payload, resetting to defaults.', error);
+    saveSettings(key, DEFAULT_DATA);
+    return DEFAULT_DATA;
+  }
 };
 
 app.get('/api/settings', (req, res) => {
