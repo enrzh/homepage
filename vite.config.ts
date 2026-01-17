@@ -1,17 +1,13 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
+export default defineConfig(() => {
     return {
       server: {
         port: 3033,
         host: '0.0.0.0',
-		allowedHosts: ["nas"],
-		proxy: {
-		"/api": "http://localhost:3034"
-		}
+		allowedHosts: ["nas"]
       },
       plugins: [react()],
       resolve: {

@@ -12,16 +12,13 @@ import GlobalSettingsModal from './components/GlobalSettingsModal';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = (() => {
-    if (typeof window === 'undefined') return 'http://0.0.0.0:3034/api/settings';
-    const host = window.location.hostname;
-    // Use local backend when developing on localhost/127.0.0.1 (can override with REACT_APP_API_PORT)
-    if (host === 'localhost' || host === '127.0.0.1') {
-        const apiPort = process.env.REACT_APP_API_PORT || '3034';
-        return `${window.location.protocol}//${host}:${apiPort}/api/settings`;
-    }
-    // In production use same origin (relative path)
-    return '/api/settings';
+    if (typeof window === 'undefined') return null;
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) return envUrl;
+    return null;
 })();
+
+const STORAGE_KEY = 'homepage-settings';
 
 const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
@@ -67,28 +64,60 @@ const App: React.FC = () => {
   const [editingWidgetId, setEditingWidgetId] = useState<string | null>(null);
 
   // Load Settings from Server
+  const applySettings = useCallback((data: Partial<{
+    widgets: WidgetData[];
+    appTitle: string;
+    showTitle: boolean;
+    enableSearchPreview: boolean;
+  }>) => {
+    setWidgets(data.widgets || DEFAULT_WIDGETS);
+    setAppTitle(data.appTitle || 'Nexus');
+    setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
+    setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
+  }, []);
+
+  const loadFromStorage = useCallback(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        applySettings({});
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      applySettings(parsed);
+    } catch (err) {
+      console.error(err);
+      applySettings({});
+    }
+  }, [applySettings]);
+
   const fetchSettings = useCallback(async () => {
+      if (!API_URL) {
+        loadFromStorage();
+        setIsLoaded(true);
+        setServerError(false);
+        setCanSync(true);
+        return;
+      }
+
       try {
           const res = await fetch(API_URL);
           if (!res.ok) throw new Error('Failed to fetch settings');
           const data = await res.json();
-          
-          setWidgets(data.widgets || DEFAULT_WIDGETS);
-          setAppTitle(data.appTitle || 'Nexus');
-          setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
-          setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
-          
+
+          applySettings(data);
+
           setIsLoaded(true);
           setServerError(false);
           setCanSync(true);
       } catch (err) {
           console.error(err);
+          loadFromStorage();
+          setIsLoaded(true);
           setServerError(true);
           setCanSync(false);
-          // Fallback to defaults or localstorage if we wanted, but sticking to server-first
-          setIsLoaded(true); 
       }
-  }, []);
+  }, [loadFromStorage, applySettings]);
 
   useEffect(() => {
     fetchSettings();
@@ -106,6 +135,11 @@ const App: React.FC = () => {
                 showTitle,
                 enableSearchPreview
             };
+            if (!API_URL) {
+              window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+              setServerError(false);
+              return;
+            }
             await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

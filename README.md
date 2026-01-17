@@ -16,8 +16,11 @@ View your app in AI Studio: https://ai.studio/apps/drive/1yVf9yDcsF1ct2xEkpnkReS
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Start the settings API (stores data in `settings.db` by default):
-   - With Docker: `docker compose up --build api`
-   - Or locally, run `npm run server` (optional: set `DB_FILE` to change the .db path)
-4. Run the app:
+3. Run the app:
    `npm run dev`
+
+### Optional settings API
+
+By default, settings are stored in `localStorage`. If you want to persist settings on a server,
+start the API (`npm run server`) and set `VITE_API_URL` (e.g. `http://localhost:3034/api/settings`). This uses the
+SQLite-backed `settings.db` by default (override with `DB_FILE`). 
