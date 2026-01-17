@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Settings, Activity, Search, MapPin, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, WifiOff } from 'lucide-react';
+import { Plus, Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil } from 'lucide-react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -15,7 +15,7 @@ const API_URL = (() => {
     if (typeof window === 'undefined') return null;
     const envUrl = import.meta.env.VITE_API_URL;
     if (envUrl) return envUrl;
-    return null;
+    return '/api/settings';
 })();
 
 const DEFAULT_WIDGETS: WidgetData[] = [
@@ -68,8 +68,8 @@ const App: React.FC = () => {
     showTitle: boolean;
     enableSearchPreview: boolean;
   }>) => {
-    setWidgets(data.widgets || DEFAULT_WIDGETS);
-    setAppTitle(data.appTitle || 'Nexus');
+    setWidgets(data.widgets ?? DEFAULT_WIDGETS);
+    setAppTitle(data.appTitle ?? 'Nexus');
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
   }, []);
@@ -172,31 +172,12 @@ const App: React.FC = () => {
             <div className="absolute bottom-[-20%] right-[-10%] w-[45%] h-[45%] bg-purple-700/10 rounded-full blur-[160px]" />
         </div>
 
-        {/* Server Error Indicator */}
-        {serverError && (
-            <div className="fixed top-4 left-4 z-50 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 animate-fade-in backdrop-blur-md">
-                <WifiOff className="w-3 h-3" />
-                <span>Sync Error</span>
-                <button
-                    onClick={retrySync}
-                    disabled={isRetrying}
-                    className="text-red-200/80 hover:text-red-100 disabled:text-red-200/40 transition-colors"
-                >
-                    {isRetrying ? 'Retrying...' : 'Retry'}
-                </button>
-            </div>
-        )}
-
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
             <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1500px] mx-auto pb-32 md:pb-10 gap-6 md:gap-10">
                 
                 {/* Top Bar (Actions) - Made subtle */}
                 <div className="flex items-center justify-between gap-2 shrink-0">
-                    <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/50 backdrop-blur-xl">
-                        <span className={`h-2 w-2 rounded-full ${serverError ? 'bg-red-400' : 'bg-emerald-400 animate-pulse'}`} />
-                        <span>{serverError ? 'Sync paused' : 'Cloud sync active'}</span>
-                    </div>
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={() => setIsGlobalSettingsOpen(true)}
@@ -334,6 +315,10 @@ const App: React.FC = () => {
             setShowTitle={setShowTitle}
             enableSearchPreview={enableSearchPreview}
             setEnableSearchPreview={setEnableSearchPreview}
+            canSync={canSync}
+            serverError={serverError}
+            isRetrying={isRetrying}
+            onRetrySync={retrySync}
         />
     </div>
   );
@@ -668,16 +653,7 @@ const WeatherSettings: React.FC<{
                 </div>
             </div>
             
-            <button 
-                onClick={() => {
-                    setCityInput('');
-                    onUpdate({ lat: undefined, lon: undefined, city: undefined });
-                }}
-                className="w-full py-3 flex items-center justify-center gap-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all border border-dashed border-white/10 hover:border-white/30"
-            >
-                <MapPin className="w-4 h-4" /> 
-                <span className="text-sm">Use Current Location (GPS)</span>
-            </button>
+            <p className="text-[10px] text-white/40">Search saves the city for this widget.</p>
         </div>
     );
 };
