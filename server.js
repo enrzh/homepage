@@ -1,16 +1,18 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs/promises');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import { Pool } from 'pg';
 
 const app = express();
-const PORT = 3034;
-const DATA_FILE = path.join(__dirname, 'db.json');
+const PORT = process.env.PORT || 3034;
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL is required to start the settings API.');
+}
 
 app.use(cors());
 app.use(express.json());
 
-// Default configuration if no DB exists
 const DEFAULT_DATA = {
   widgets: [
     { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
@@ -20,30 +22,45 @@ const DEFAULT_DATA = {
   ],
   appTitle: 'Nexus',
   showTitle: true,
-  enableSearchPreview: true
+  enableSearchPreview: true,
 };
 
-// Helper to read data
-const readData = async () => {
-  try {
-    const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // If file doesn't exist, return default and create file
-    await writeData(DEFAULT_DATA);
-    return DEFAULT_DATA;
+const pool = new Pool({ connectionString: DATABASE_URL });
+
+const ensureSettingsRow = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY,
+      data JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  const existing = await pool.query('SELECT data FROM settings WHERE id = 1');
+  if (existing.rowCount === 0) {
+    await pool.query('INSERT INTO settings (id, data) VALUES (1, $1)', [DEFAULT_DATA]);
   }
 };
 
-// Helper to write data
-const writeData = async (data) => {
-  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+const readSettings = async () => {
+  const result = await pool.query('SELECT data FROM settings WHERE id = 1');
+  if (result.rowCount === 0) {
+    await pool.query('INSERT INTO settings (id, data) VALUES (1, $1)', [DEFAULT_DATA]);
+    return DEFAULT_DATA;
+  }
+  return result.rows[0].data;
 };
 
-// GET Settings
+const writeSettings = async (data) => {
+  await pool.query(
+    'UPDATE settings SET data = $1, updated_at = NOW() WHERE id = 1',
+    [data],
+  );
+};
+
 app.get('/api/settings', async (req, res) => {
   try {
-    const data = await readData();
+    const data = await readSettings();
     res.json(data);
   } catch (err) {
     console.error(err);
@@ -51,12 +68,10 @@ app.get('/api/settings', async (req, res) => {
   }
 });
 
-// POST Settings
 app.post('/api/settings', async (req, res) => {
   try {
     const newData = req.body;
-    // Basic validation could go here
-    await writeData(newData);
+    await writeSettings(newData);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -64,6 +79,16 @@ app.post('/api/settings', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await ensureSettingsRow();
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
