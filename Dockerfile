@@ -7,6 +7,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3033
+EXPOSE 3033 3034
 
 CMD ["sh", "./scripts/start-dev.sh"]
