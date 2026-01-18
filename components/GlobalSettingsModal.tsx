@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Type, Search, Cloud, CloudOff, RefreshCw, Lock } from 'lucide-react';
+import ToggleSwitch from './ToggleSwitch';
 
 interface GlobalSettingsModalProps {
   isOpen: boolean;
@@ -72,18 +73,11 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                         <p className="text-xs text-white/40">Show the main title on home screen</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => setShowTitle(!showTitle)}
-                    className={`
-                        relative w-12 h-6 rounded-full border transition-all duration-200
-                        ${showTitle ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
-                    `}
-                >
-                    <div className={`
-                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
-                        ${showTitle ? 'translate-x-6' : 'translate-x-0'}
-                    `} />
-                </button>
+                <ToggleSwitch
+                    checked={showTitle}
+                    onChange={setShowTitle}
+                    label="Show dashboard title"
+                />
             </div>
 
             {/* Search Preview Setting */}
@@ -97,18 +91,11 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                         <p className="text-xs text-white/40">Show suggestions while typing</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => setEnableSearchPreview(!enableSearchPreview)}
-                    className={`
-                        relative w-12 h-6 rounded-full border transition-all duration-200
-                        ${enableSearchPreview ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
-                    `}
-                >
-                    <div className={`
-                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
-                        ${enableSearchPreview ? 'translate-x-6' : 'translate-x-0'}
-                    `} />
-                </button>
+                <ToggleSwitch
+                    checked={enableSearchPreview}
+                    onChange={setEnableSearchPreview}
+                    label="Enable search previews"
+                />
             </div>
 
             {/* Widget Lock Setting */}
@@ -122,18 +109,11 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                         <p className="text-xs text-white/40">Disable widget dragging and editing</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => setLockWidgets(!lockWidgets)}
-                    className={`
-                        relative w-12 h-6 rounded-full border transition-all duration-200
-                        ${lockWidgets ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
-                    `}
-                >
-                    <div className={`
-                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
-                        ${lockWidgets ? 'translate-x-6' : 'translate-x-0'}
-                    `} />
-                </button>
+                <ToggleSwitch
+                    checked={lockWidgets}
+                    onChange={setLockWidgets}
+                    label="Lock widgets"
+                />
             </div>
 
             <div className="border-t border-white/10 pt-5">
