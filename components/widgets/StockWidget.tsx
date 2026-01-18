@@ -37,19 +37,25 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
       const timestamps = result.timestamp || [];
       const quotes = result.indicators.quote[0].close || [];
       
-      const formattedData: StockData[] = timestamps.map((ts: number, i: number) => ({
+      const formattedData = timestamps.map((ts: number, i: number) => ({
         time: new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         value: quotes[i]
       })).filter((d: any) => d.value !== null && d.value !== undefined);
 
       if (formattedData.length === 0 && meta.regularMarketPrice) {
-         formattedData.push({
-             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-             value: meta.regularMarketPrice
-         });
+        formattedData.push({
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          value: meta.regularMarketPrice
+        });
       }
 
-      setData(formattedData);
+      const baseValue = formattedData[0]?.value ?? 0;
+      const chartData: StockData[] = formattedData.map((point) => ({
+        ...point,
+        delta: baseValue ? ((point.value - baseValue) / baseValue) * 100 : 0
+      }));
+
+      setData(chartData);
       setCurrentPrice(meta.regularMarketPrice);
       setPreviousClose(meta.previousClose);
     } catch (err) {
@@ -134,7 +140,8 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                             return (
                                 <div className="bg-[#111] border border-white/10 rounded-md p-2 text-xs shadow-xl">
                                 <p className="text-white/50 mb-0.5">{payload[0].payload.time}</p>
-                                <p className="font-bold text-white">${Number(payload[0].value).toFixed(2)}</p>
+                        <p className="font-bold text-white">${Number(payload[0].payload.value).toFixed(2)}</p>
+                        <p className="text-[10px] text-white/40 mt-1">{Number(payload[0].value).toFixed(2)}%</p>
                                 </div>
                             );
                             }
@@ -142,14 +149,16 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                         }}
                     />
                     <Area 
-                        type="monotone" 
-                        dataKey="value" 
+                        type="linear" 
+                        dataKey="delta" 
                         stroke={isPositive ? "#94a3b8" : "#fca5a5"} 
                         fillOpacity={1} 
                         fill={`url(#colorValue-${symbol})`}
                         strokeWidth={2.5}
                         isAnimationActive={true}
                         animationDuration={1000}
+                        dot={false}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: isPositive ? "#cbd5f5" : "#fecaca" }}
                     />
                 </AreaChart>
             </ResponsiveContainer>

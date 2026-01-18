@@ -26,7 +26,7 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
   { id: '4', type: 'shortcuts', title: 'Shortcuts', config: { tint: 'orange' } },
   { id: '5', type: 'notes', title: 'Notes', config: { tint: 'purple', notes: ['Review sprint goals', 'Prep demo slides', 'Send recap email'] } },
-  { id: '6', type: 'quote', title: 'Quote', config: { tint: 'blue', quoteText: 'Small steps every day lead to massive change.', quoteAuthor: 'Nexus' } },
+  { id: '6', type: 'quote', title: 'Quote', config: { tint: 'blue', quoteGenre: 'inspirational' } },
 ];
 
 const TINTS: { id: string; class: string; name: string }[] = [
@@ -190,7 +190,7 @@ const App: React.FC = () => {
           : type === 'notes'
             ? { notes: ['Capture a thought', 'Add a quick reminder'] }
             : type === 'quote'
-              ? { quoteText: 'Momentum is built one focused moment at a time.', quoteAuthor: 'Nexus' }
+              ? { quoteGenre: 'inspirational' }
           : {},
     };
     setWidgets((prev) => [...prev, newWidget]);
@@ -458,9 +458,6 @@ const EditConfigPanel: React.FC<{
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
     const [notesText, setNotesText] = useState((widget.config.notes || []).join('\n'));
-    const [quoteText, setQuoteText] = useState(widget.config.quoteText || '');
-    const [quoteAuthor, setQuoteAuthor] = useState(widget.config.quoteAuthor || '');
-
     // Direct update wrapper for toggles/selectors
     const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
         const newConfig = { ...localConfig, ...updates };
@@ -486,11 +483,6 @@ const EditConfigPanel: React.FC<{
             .filter(Boolean);
         updateConfigImmediate({ notes: formattedNotes });
     }, [notesText]);
-
-    useEffect(() => {
-        if (widget.type !== 'quote') return;
-        updateConfigImmediate({ quoteText, quoteAuthor });
-    }, [quoteText, quoteAuthor]);
 
     // Construct a temporary widget object for the Live Preview
     const previewWidget: WidgetData = {
@@ -533,19 +525,6 @@ const EditConfigPanel: React.FC<{
                     {renderWidgetContent(previewWidget)}
                 </div>
 
-                <div className="absolute bottom-4 md:bottom-6 flex gap-2">
-                    {TINTS.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => updateConfigImmediate({ tint: t.id })}
-                            title={t.name}
-                            className={`
-                                w-6 h-6 rounded-md ${t.class} border transition-all 
-                                ${localConfig.tint === t.id ? 'border-white/70 scale-105' : 'border-transparent opacity-50 hover:opacity-100'}
-                            `}
-                        />
-                    ))}
-                </div>
             </div>
 
             {/* Right/Bottom: Settings Panel */}
@@ -611,8 +590,8 @@ const EditConfigPanel: React.FC<{
                                 ].map((opt) => (
                                     <label key={opt.key} className="flex items-center justify-between text-sm text-white/80 cursor-pointer p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                                         <span>{opt.label}</span>
-                                        <div className={`w-10 h-5 rounded-md relative transition-colors ${localConfig[opt.key] ? 'bg-slate-500' : 'bg-white/20'}`}>
-                                            <div className={`absolute top-1 w-3 h-3 bg-white rounded transition-all ${localConfig[opt.key] ? 'left-6' : 'left-1'}`} />
+                                        <div className={`w-11 h-6 rounded-full relative border transition-all ${localConfig[opt.key] ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}`}>
+                                            <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all ${localConfig[opt.key] ? 'left-5' : 'left-0.5'}`} />
                                             <input 
                                                 type="checkbox" 
                                                 checked={!!localConfig[opt.key]}
@@ -663,23 +642,24 @@ const EditConfigPanel: React.FC<{
                         {widget.type === 'quote' && (
                             <div className="space-y-3">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-sm text-white/60">Quote</label>
-                                    <textarea
-                                        value={quoteText}
-                                        onChange={(e) => setQuoteText(e.target.value)}
-                                        rows={4}
-                                        placeholder="Enter your favorite quote"
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all resize-none"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm text-white/60">Author</label>
-                                    <input
-                                        value={quoteAuthor}
-                                        onChange={(e) => setQuoteAuthor(e.target.value)}
-                                        placeholder="Quote author"
+                                    <label className="text-sm text-white/60">Genre</label>
+                                    <select
+                                        value={localConfig.quoteGenre || 'inspirational'}
+                                        onChange={(e) => updateConfigImmediate({ quoteGenre: e.target.value })}
                                         className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all"
-                                    />
+                                    >
+                                        <option value="inspirational">Inspirational</option>
+                                        <option value="motivational">Motivational</option>
+                                        <option value="wisdom">Wisdom</option>
+                                        <option value="success">Success</option>
+                                        <option value="happiness">Happiness</option>
+                                        <option value="famous-quotes">Famous</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="life">Life</option>
+                                        <option value="friendship">Friendship</option>
+                                        <option value="any">Any</option>
+                                    </select>
+                                    <p className="text-[10px] text-white/40">Quotes update automatically from the web.</p>
                                 </div>
                             </div>
                         )}

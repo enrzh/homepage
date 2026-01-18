@@ -75,12 +75,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setShowTitle(!showTitle)}
                     className={`
-                        relative w-12 h-6 rounded-md transition-colors duration-200
-                        ${showTitle ? 'bg-slate-500' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-full border transition-all duration-200
+                        ${showTitle ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
+                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
                         ${showTitle ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
@@ -100,12 +100,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setEnableSearchPreview(!enableSearchPreview)}
                     className={`
-                        relative w-12 h-6 rounded-md transition-colors duration-200
-                        ${enableSearchPreview ? 'bg-slate-500' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-full border transition-all duration-200
+                        ${enableSearchPreview ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
+                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
                         ${enableSearchPreview ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
@@ -125,12 +125,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setLockWidgets(!lockWidgets)}
                     className={`
-                        relative w-12 h-6 rounded-md transition-colors duration-200
-                        ${lockWidgets ? 'bg-slate-500' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-full border transition-all duration-200
+                        ${lockWidgets ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
+                        absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200
                         ${lockWidgets ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>

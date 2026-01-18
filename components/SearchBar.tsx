@@ -83,13 +83,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
       <div className="relative group">
         {/* Input Container */}
         <div className={`
-          relative flex items-center bg-slate-950/80 border border-white/10 transition-all duration-300 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.9)]
+          relative flex items-center bg-slate-950/80 border border-white/30 transition-all duration-300
+          shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_18px_45px_-35px_rgba(0,0,0,0.9),0_0_24px_rgba(255,255,255,0.12)]
           
           /* Default (Mobile/Bottom) Shape */
           rounded-lg
           
           /* Desktop when focused: flatten bottom corner to attach to suggestions */
-          ${isFocused ? 'md:border-white/30 md:shadow-[0_28px_60px_-35px_rgba(0,0,0,0.9)]' : 'hover:border-white/20'}
+          ${isFocused ? 'md:border-white/60 md:shadow-[0_0_0_1px_rgba(255,255,255,0.5),0_28px_60px_-35px_rgba(0,0,0,0.9),0_0_30px_rgba(255,255,255,0.2)]' : 'hover:border-white/40'}
           ${hasSuggestions ? 'md:rounded-b-none md:shadow-none' : ''}
         `}>
           <Search className={`w-5 h-5 ml-4 transition-colors ${isFocused ? 'text-white' : 'text-white/40'}`} />

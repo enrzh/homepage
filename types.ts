@@ -35,6 +35,7 @@ export interface WidgetConfig {
   // Quote
   quoteText?: string;
   quoteAuthor?: string;
+  quoteGenre?: string;
 
   [key: string]: any;
 }
@@ -49,6 +50,7 @@ export interface WidgetData {
 export interface StockData {
   time: string;
   value: number;
+  delta?: number;
 }
 
 export interface WeatherData {
