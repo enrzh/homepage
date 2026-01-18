@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { StockData, WidgetConfig } from '../../types';
 
@@ -117,16 +117,17 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
         </div>
       
         {/* Chart */}
-        <div className="flex-1 min-h-[50px] md:min-h-[60px] -mx-4 -mb-4 opacity-80 mask-gradient-bottom">
+        <div className="flex-1 min-h-[80px] md:min-h-[100px] -mx-2 -mb-2 rounded-2xl border border-white/5 bg-black/20 p-2">
             {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data}>
+                <AreaChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id={`colorValue-${symbol}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0.25}/>
-                            <stop offset="95%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0}/>
+                            <stop offset="5%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0.35}/>
+                            <stop offset="95%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
+                    <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                     <Tooltip 
                         content={({ active, payload }) => {
                             if (active && payload && payload.length) {
@@ -146,7 +147,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                         stroke={isPositive ? "#4ade80" : "#f87171"} 
                         fillOpacity={1} 
                         fill={`url(#colorValue-${symbol})`}
-                        strokeWidth={2}
+                        strokeWidth={2.5}
                         isAnimationActive={true}
                         animationDuration={1000}
                     />
