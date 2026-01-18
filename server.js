@@ -2,10 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3034);
-const dbFile = path.join(process.cwd(), 'data.db');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dbFile = path.join(__dirname, 'data.db');
 
 const DEFAULT_SETTINGS = {
   widgets: [
