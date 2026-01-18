@@ -44,6 +44,15 @@ const normalizeSettings = (payload) => {
   };
 };
 
+const mergeSettings = (current, incoming) => ({
+  widgets: Array.isArray(incoming.widgets) ? incoming.widgets : current.widgets,
+  appTitle: typeof incoming.appTitle === 'string' ? incoming.appTitle : current.appTitle,
+  showTitle: typeof incoming.showTitle === 'boolean' ? incoming.showTitle : current.showTitle,
+  enableSearchPreview:
+    typeof incoming.enableSearchPreview === 'boolean' ? incoming.enableSearchPreview : current.enableSearchPreview,
+  lockWidgets: typeof incoming.lockWidgets === 'boolean' ? incoming.lockWidgets : current.lockWidgets,
+});
+
 const readDatabase = async () => {
   try {
     const raw = await fsp.readFile(dbFile, 'utf8');
@@ -90,7 +99,9 @@ app.post('/api/settings', async (req, res) => {
       res.status(400).json({ error: 'Invalid payload' });
       return;
     }
-    const normalized = normalizeSettings(incoming);
+    const current = await readDatabase();
+    const merged = mergeSettings(current, incoming);
+    const normalized = normalizeSettings(merged);
     await writeDatabase(normalized);
     res.json({ success: true });
   } catch (error) {
