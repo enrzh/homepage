@@ -56,6 +56,7 @@ const App: React.FC = () => {
   const [appTitle, setAppTitle] = useState('Nexus');
   const [showTitle, setShowTitle] = useState(true);
   const [enableSearchPreview, setEnableSearchPreview] = useState(true);
+  const [lockWidgets, setLockWidgets] = useState(false);
   
   // System State
   const [isLoaded, setIsLoaded] = useState(false);
@@ -73,11 +74,13 @@ const App: React.FC = () => {
     appTitle: string;
     showTitle: boolean;
     enableSearchPreview: boolean;
+    lockWidgets: boolean;
   }>) => {
     setWidgets(data.widgets ?? DEFAULT_WIDGETS);
     setAppTitle(data.appTitle ?? 'Nexus');
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
+    setLockWidgets(data.lockWidgets !== undefined ? data.lockWidgets : false);
   }, []);
 
   const fetchSettings = useCallback(async () => {
@@ -121,7 +124,8 @@ const App: React.FC = () => {
             widgets,
             appTitle,
             showTitle,
-            enableSearchPreview
+            enableSearchPreview,
+            lockWidgets
         };
 
         if (!API_URL || !canSync) return;
@@ -142,7 +146,13 @@ const App: React.FC = () => {
 
     const timer = setTimeout(saveData, 1000); // Debounce for 1 second
     return () => clearTimeout(timer);
-  }, [widgets, appTitle, showTitle, enableSearchPreview, isLoaded, canSync]);
+  }, [widgets, appTitle, showTitle, enableSearchPreview, lockWidgets, isLoaded, canSync]);
+
+  useEffect(() => {
+    if (lockWidgets && editingWidgetId) {
+      setEditingWidgetId(null);
+    }
+  }, [lockWidgets, editingWidgetId]);
 
   const retrySync = async () => {
       setIsRetrying(true);
@@ -252,10 +262,37 @@ const App: React.FC = () => {
                             return (
                                 <WidgetItem
                                     key={widget.id}
-                                    widget={widget}
-                                    isBeingEdited={isBeingEdited}
-                                    onEditStart={() => setEditingWidgetId(widget.id)}
-                                />
+                                    value={widget}
+                                    drag={!isBeingEdited && !lockWidgets}
+                                    dragMomentum={false}
+                                    whileDrag={{ 
+                                        scale: 1.05, 
+                                        zIndex: 100, 
+                                        cursor: "grabbing", 
+                                        backgroundColor: "rgba(30, 30, 30, 0.9)",
+                                        backdropFilter: "blur(12px)"
+                                    }}
+                                    layout
+                                    className={`
+                                        relative group list-none rounded-3xl
+                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
+                                        h-[160px] md:h-[190px]
+                                    `}
+                                    as="li"
+                                >
+                                    <div className={`w-full h-full transition-opacity duration-300 ${isBeingEdited ? 'opacity-0' : 'opacity-100'}`}>
+                                         <WidgetCard 
+                                            widget={widget} 
+                                            onRemove={() => removeWidget(widget.id)}
+                                            onEditStart={() => setEditingWidgetId(widget.id)}
+                                            layoutId={`widget-container-${widget.id}`}
+                                            isLocked={lockWidgets}
+                                        >
+                                            {renderWidgetContent(widget)}
+                                        </WidgetCard>
+                                    </div>
+                                    {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-3xl border border-white/5" />}
+                                </Reorder.Item>
                             );
                         })}
                         </AnimatePresence>
@@ -300,6 +337,8 @@ const App: React.FC = () => {
             setShowTitle={setShowTitle}
             enableSearchPreview={enableSearchPreview}
             setEnableSearchPreview={setEnableSearchPreview}
+            lockWidgets={lockWidgets}
+            setLockWidgets={setLockWidgets}
             canSync={canSync}
             serverError={serverError}
             isRetrying={isRetrying}
@@ -362,13 +401,20 @@ const WidgetCard: React.FC<{
     widget: WidgetData;
     children: React.ReactNode;
     onEditStart: () => void;
-    onDragStart: (event: React.PointerEvent<HTMLButtonElement>) => void;
-}> = ({ widget, children, onEditStart, onDragStart }) => {
+    layoutId: string;
+    isLocked: boolean;
+}> = ({ widget, children, onRemove, onEditStart, layoutId, isLocked }) => {
     const tintConfig = TINTS.find(t => t.id === widget.config.tint) || TINTS[0];
     const bgClass = `bg-gradient-to-br ${tintConfig.class}`;
 
     return (
         <motion.div 
+            layoutId={layoutId}
+            onDoubleClick={() => {
+                if (!isLocked) {
+                    onEditStart();
+                }
+            }}
             className={`
                 w-full h-full relative overflow-hidden backdrop-blur-md border border-white/5 hover:border-white/20 transition-all shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] hover:shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)] group rounded-3xl
                 ${bgClass}
@@ -376,33 +422,20 @@ const WidgetCard: React.FC<{
         >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/30 opacity-70" />
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_55%)]" />
-            <div className="absolute top-2 left-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-                <button
-                    type="button"
-                    onPointerDown={(event) => {
-                        event.stopPropagation();
-                        onDragStart(event);
-                    }}
-                    className="p-1.5 rounded-full bg-black/40 text-white/70 hover:bg-black/60 hover:text-white transition-all backdrop-blur-md cursor-grab active:cursor-grabbing"
-                    title="Drag to move"
-                >
-                    <GripVertical className="w-3 h-3" />
-                </button>
-            </div>
-            <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-                 <button 
-                        onClick={(e) => { e.stopPropagation(); onEditStart(); }}
-                        className="p-1.5 rounded-full bg-black/40 text-white/70 hover:bg-black/60 hover:text-white transition-all backdrop-blur-md"
-                    >
-                        <Settings className="w-3 h-3" />
-                    </button>
-            </div>
-            <div className="relative h-full w-full pointer-events-none">{children}</div>
-            <div 
-                className="absolute inset-0 z-10 pointer-events-auto cursor-pointer" 
-                onDoubleClick={onEditStart}
-                title="Double-click to edit"
-            />
+            {!isLocked && (
+                <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+                     <button 
+                            onClick={(e) => { 
+                                e.stopPropagation();
+                                onEditStart();
+                            }}
+                            className="p-1.5 rounded-full bg-black/40 text-white/70 hover:bg-black/60 hover:text-white transition-all backdrop-blur-md"
+                        >
+                            <Settings className="w-3 h-3" />
+                        </button>
+                </div>
+            )}
+            <div className="relative h-full w-full">{children}</div>
         </motion.div>
     );
 };
