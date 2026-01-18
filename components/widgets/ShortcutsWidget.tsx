@@ -36,9 +36,9 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   };
 
   const isWide = config.colSpan === 2;
-  const gridClass = isWide ? 'grid-cols-4' : 'grid-cols-2';
   const maxItems = isWide ? 8 : 4;
   const visibleCount = Math.min(displayLinks.length, maxItems);
+  const columnCount = Math.max(1, Math.min(visibleCount, maxItems));
 
   return (
     <div className="h-full flex flex-col p-4 text-white gap-4">
@@ -48,14 +48,20 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
         </h3>
         <span className="text-[10px] text-white/30 font-medium">{visibleCount}</span>
       </div>
-      <div className={`grid ${gridClass} gap-2 md:gap-3 flex-1 content-start auto-rows-min`}>
+      <div
+        className="grid gap-2 md:gap-3 flex-1 items-stretch"
+        style={{
+          gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+          gridAutoRows: 'minmax(0, 1fr)',
+        }}
+      >
         {displayLinks.slice(0, maxItems).map((sc) => (
           <a
             key={sc.id}
             href={sc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-2 rounded-md border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="group flex h-full items-center gap-2 rounded-md border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             title={sc.title}
             onPointerDown={(e) => e.stopPropagation()}
           >
