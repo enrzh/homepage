@@ -9,7 +9,7 @@ const QuoteWidget: React.FC<QuoteWidgetProps> = ({ config }) => {
   const title = config.customTitle || 'Quote';
   const genre = config.quoteGenre || 'inspirational';
   const [quoteText, setQuoteText] = useState('Consistency compounds. Keep shipping small wins every day.');
-  const [quoteAuthor, setQuoteAuthor] = useState('Nexus');
+  const [quoteAuthor, setQuoteAuthor] = useState('Homepage');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const QuoteWidget: React.FC<QuoteWidgetProps> = ({ config }) => {
       } catch (error) {
         if (isMounted) {
           setQuoteText('Consistency compounds. Keep shipping small wins every day.');
-          setQuoteAuthor('Nexus');
+          setQuoteAuthor('Homepage');
         }
       } finally {
         if (isMounted) {

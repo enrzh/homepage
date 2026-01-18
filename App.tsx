@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical } from 'lucide-react';
+import { Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical } from 'lucide-react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -68,7 +68,7 @@ const App: React.FC = () => {
   // State
   const [widgets, setWidgets] = useState<WidgetData[]>(DEFAULT_WIDGETS);
   const [widgetOrder, setWidgetOrder] = useState<string[]>(buildWidgetOrder(DEFAULT_WIDGETS));
-  const [appTitle, setAppTitle] = useState('Nexus');
+  const [appTitle, setAppTitle] = useState('Homepage');
   const [showTitle, setShowTitle] = useState(true);
   const [enableSearchPreview, setEnableSearchPreview] = useState(true);
   const [lockWidgets, setLockWidgets] = useState(false);
@@ -94,7 +94,7 @@ const App: React.FC = () => {
     const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS).map(ensureWidgetConfig);
     setWidgets(nextWidgets);
     setWidgetOrder(buildWidgetOrder(nextWidgets));
-    setAppTitle(data.appTitle ?? 'Nexus');
+    setAppTitle(data.appTitle ?? 'Homepage');
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
     setLockWidgets(data.lockWidgets !== undefined ? data.lockWidgets : false);
@@ -226,11 +226,10 @@ const App: React.FC = () => {
                         </button>
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center gap-2 px-3 py-2 rounded-md text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/15 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/15 border border-white/10"
                             title="Add Widget"
                         >
-                            <Plus className="w-7 h-7 md:w-5 md:h-5" />
-                            <span className="text-sm font-medium hidden md:inline">Add Widget</span>
+                            <span className="text-2xl leading-none">+</span>
                         </button>
                     </div>
                 </div>
