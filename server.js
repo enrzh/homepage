@@ -57,8 +57,16 @@ const readDatabase = async () => {
 const writeDatabase = async (settings) => {
   const payload = JSON.stringify(settings, null, 2);
   const tempFile = `${dbFile}.tmp`;
+  await fs.mkdir(path.dirname(dbFile), { recursive: true });
   await fs.writeFile(tempFile, payload, 'utf8');
-  await fs.rename(tempFile, dbFile);
+  try {
+    await fs.rename(tempFile, dbFile);
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+    await fs.writeFile(dbFile, payload, 'utf8');
+  }
 };
 
 app.get('/api/settings', async (req, res) => {
