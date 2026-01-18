@@ -45,8 +45,14 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
   const StatusIcon = syncStatus.icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-[#111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-[#111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <h2 className="text-lg font-semibold text-white">Dashboard Settings</h2>
           <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors">
