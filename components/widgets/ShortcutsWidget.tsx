@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { ShortcutLink, WidgetConfig } from '../../types';
 
 interface ShortcutsWidgetProps {
@@ -19,54 +19,60 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
 
   const getFavicon = (url: string) => {
     try {
-        const domain = new URL(url).hostname;
-        return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+      const domain = new URL(url).hostname;
+      return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
     } catch {
-        return '';
+      return '';
     }
   };
 
   const isWide = config.colSpan === 2;
-  // Regular: 3 cols (fits ~3 items/row), Wide: 6 cols
-  const gridClass = isWide ? 'grid-cols-6' : 'grid-cols-3';
-  // 2 rows max to fit height
-  const maxItems = isWide ? 12 : 6;
+  const gridClass = isWide ? 'grid-cols-4' : 'grid-cols-2';
+  const maxItems = isWide ? 8 : 4;
+  const visibleCount = Math.min(displayLinks.length, maxItems);
 
   return (
-    <div className="h-full flex flex-col p-4 text-white">
-      <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">
-        {config.customTitle || 'Quick Links'}
-      </h3>
-      <div className={`grid ${gridClass} gap-2 h-full content-start`}>
-        {displayLinks.slice(0, maxItems).map((sc) => (
-          <a
-            key={sc.id}
-            href={sc.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="aspect-square flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all hover:scale-105 hover:shadow-lg active:scale-95 group relative overflow-hidden"
-            title={sc.title}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            {/* Icon */}
-            <div className="w-8 h-8 rounded-full bg-white/10 p-1 flex items-center justify-center overflow-hidden shrink-0">
+    <div className="h-full flex flex-col p-4 text-white gap-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">
+          {config.customTitle || 'Quick Links'}
+        </h3>
+        <span className="text-[10px] text-white/40 font-medium">
+          {visibleCount} link{visibleCount === 1 ? '' : 's'}
+        </span>
+      </div>
+      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-2">
+        <div className={`grid ${gridClass} gap-3 h-full content-start auto-rows-fr`}>
+          {displayLinks.slice(0, maxItems).map((sc) => (
+            <a
+              key={sc.id}
+              href={sc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="aspect-square flex flex-col items-center justify-center gap-2 p-2 rounded-2xl bg-white/10 hover:bg-white/20 transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95 group relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              title={sc.title}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              {/* Icon */}
+              <div className="w-9 h-9 rounded-2xl bg-white/15 p-1.5 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                 <img 
-                    src={getFavicon(sc.url)} 
-                    alt={sc.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                    }}
+                  src={getFavicon(sc.url)} 
+                  alt={sc.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                  }}
                 />
                 <Globe className="w-4 h-4 text-white/50 hidden" />
-            </div>
-            {/* Label */}
-            <span className="text-[9px] text-white/60 group-hover:text-white font-medium truncate w-full text-center leading-tight">
+              </div>
+              {/* Label */}
+              <span className="text-[10px] text-white/70 group-hover:text-white font-semibold truncate w-full text-center leading-tight">
                 {sc.title}
-            </span>
-          </a>
-        ))}
+              </span>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
