@@ -30,11 +30,11 @@ const DEFAULT_WIDGETS: WidgetData[] = [
 ];
 
 const TINTS: { id: string; class: string; name: string }[] = [
-    { id: 'default', class: 'from-slate-900/70 to-slate-800/50', name: 'Slate' },
-    { id: 'blue', class: 'from-slate-900/70 to-sky-900/40', name: 'Navy' },
-    { id: 'purple', class: 'from-slate-900/70 to-violet-900/40', name: 'Indigo' },
-    { id: 'green', class: 'from-slate-900/70 to-emerald-900/35', name: 'Emerald' },
-    { id: 'orange', class: 'from-slate-900/70 to-amber-900/35', name: 'Amber' },
+    { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },
+    { id: 'blue', class: 'bg-slate-900/70', name: 'Steel' },
+    { id: 'purple', class: 'bg-slate-800/70', name: 'Graphite' },
+    { id: 'green', class: 'bg-slate-900/60', name: 'Charcoal' },
+    { id: 'orange', class: 'bg-slate-800/60', name: 'Smoke' },
 ];
 
 const ensureWidgetConfig = (widget: WidgetData): WidgetData => ({
@@ -208,12 +208,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#0b0f14] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-slate-400/30 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(15,23,42,0.9),_transparent_60%)]">
-        {/* Fixed Background */}
-        <div className="absolute inset-0 pointer-events-none z-0">
-            <div className="absolute top-[-20%] left-[-10%] w-[45%] h-[45%] bg-slate-500/10 rounded-full blur-[160px]" />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[45%] h-[45%] bg-slate-700/10 rounded-full blur-[180px]" />
-        </div>
+    <div className="h-[100dvh] w-full bg-[#0f1217] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-slate-400/20">
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
@@ -224,14 +219,14 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={() => setIsGlobalSettingsOpen(true)}
-                            className="p-3 md:p-2 rounded-lg text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
+                            className="p-3 md:p-2 rounded-md text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
                             title="Settings"
                         >
                             <Settings className="w-6 h-6 md:w-5 md:h-5" />
                         </button>
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/20 border border-white/10"
+                            className="flex items-center gap-2 px-3 py-2 rounded-md text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/15 border border-white/10"
                             title="Add Widget"
                         >
                             <Plus className="w-7 h-7 md:w-5 md:h-5" />
@@ -246,7 +241,7 @@ const App: React.FC = () => {
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-6xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-2xl transition-all px-4 md:px-6 py-3 backdrop-blur-md shadow-[0_20px_50px_-40px_rgba(0,0,0,0.85)]"
+                            className="text-4xl md:text-6xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3"
                             placeholder="Dashboard Name"
                         />
                     </div>
@@ -296,7 +291,7 @@ const App: React.FC = () => {
                                     }}
                                     layout
                                     className={`
-                                        relative group list-none rounded-3xl
+                                        relative group list-none rounded-lg
                                         ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
                                         h-[160px] md:h-[190px]
                                     `}
@@ -313,7 +308,7 @@ const App: React.FC = () => {
                                             {renderWidgetContent(widget)}
                                         </WidgetCard>
                                     </div>
-                                    {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-2xl border border-white/5" />}
+                                    {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-lg border border-white/5" />}
                                 </Reorder.Item>
                             );
                         })}
@@ -327,7 +322,7 @@ const App: React.FC = () => {
         {/* Mobile Fixed Bottom Search Bar */}
         <div className={`
             md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-12 
-            bg-gradient-to-t from-[#050505] via-[#050505] to-transparent
+            bg-gradient-to-t from-[#0b0e12] via-[#0b0e12] to-transparent
             flex justify-center pointer-events-none
         `}>
             <div className="w-full pointer-events-auto">
@@ -381,7 +376,7 @@ const WidgetCard: React.FC<{
     isLocked: boolean;
 }> = ({ widget, children, onRemove, onEditStart, layoutId, isLocked }) => {
     const tintConfig = TINTS.find(t => t.id === widget.config.tint) || TINTS[0];
-    const bgClass = `bg-gradient-to-br ${tintConfig.class}`;
+    const bgClass = tintConfig.class;
 
     return (
         <motion.div 
@@ -392,12 +387,11 @@ const WidgetCard: React.FC<{
                 }
             }}
             className={`
-                w-full h-full relative overflow-hidden backdrop-blur-md border border-white/10 hover:border-white/20 transition-all shadow-[0_18px_45px_-35px_rgba(0,0,0,0.85)] hover:shadow-[0_28px_70px_-35px_rgba(0,0,0,0.9)] hover:-translate-y-0.5 group rounded-2xl
+                w-full h-full relative overflow-hidden border border-white/10 hover:border-white/20 transition-all shadow-[0_18px_45px_-35px_rgba(0,0,0,0.85)] hover:shadow-[0_28px_70px_-35px_rgba(0,0,0,0.9)] hover:-translate-y-0.5 group rounded-lg
                 ${bgClass}
             `}
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/50 opacity-80" />
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_60%)]" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5" />
             {!isLocked && (
                 <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                      <button 
@@ -405,7 +399,7 @@ const WidgetCard: React.FC<{
                                 e.stopPropagation();
                                 onEditStart();
                             }}
-                            className="p-1.5 rounded-full bg-black/50 text-white/70 hover:bg-black/70 hover:text-white transition-all backdrop-blur-md"
+                            className="p-1.5 rounded-md bg-black/50 text-white/70 hover:bg-black/70 hover:text-white transition-all"
                         >
                             <Settings className="w-3 h-3" />
                         </button>
@@ -513,27 +507,27 @@ const EditConfigPanel: React.FC<{
                 w-full max-w-4xl 
                 h-full md:h-[600px] md:max-h-[85vh]
                 flex flex-col md:flex-row
-                md:rounded-3xl border-0 md:border border-white/20 shadow-2xl overflow-hidden
+                md:rounded-lg border-0 md:border border-white/20 shadow-2xl overflow-hidden
                 bg-[#0a0a0a]
             `}
         >
             {/* Left/Top: Preview Area */}
             <div className={`
                 relative shrink-0 md:flex-1 p-6 md:p-8 flex flex-col items-center justify-center
-                bg-gradient-to-br ${tintConfig.class}
+                ${tintConfig.class}
                 border-b md:border-b-0 md:border-r border-white/10
                 min-h-[220px] md:min-h-[300px]
             `}>
                 <div className="absolute top-4 left-4 text-xs font-bold text-white/30 uppercase tracking-widest hidden md:block">Live Preview</div>
                 <div className="absolute top-4 right-4 md:hidden z-50">
-                     <button onClick={onClose} className="p-2 bg-black/20 hover:bg-black/40 rounded-full text-white backdrop-blur-md" title="Close">
+                     <button onClick={onClose} className="p-2 bg-black/20 hover:bg-black/40 rounded-md text-white" title="Close">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
                 
                 {/* The Actual Widget Component */}
                 <div className={`
-                    w-full max-w-[240px] md:max-w-[300px] aspect-square rounded-3xl border border-white/10 shadow-xl overflow-hidden bg-black/10 backdrop-blur-sm
+                    w-full max-w-[240px] md:max-w-[300px] aspect-square rounded-lg border border-white/10 shadow-xl overflow-hidden bg-black/10
                     ${localConfig.colSpan === 2 ? 'aspect-[2/1] max-w-[400px] md:max-w-[500px]' : ''}
                 `}>
                     {renderWidgetContent(previewWidget)}
@@ -546,8 +540,8 @@ const EditConfigPanel: React.FC<{
                             onClick={() => updateConfigImmediate({ tint: t.id })}
                             title={t.name}
                             className={`
-                                w-6 h-6 rounded-full bg-gradient-to-br ${t.class} border-2 transition-all 
-                                ${localConfig.tint === t.id ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-40 hover:opacity-100'}
+                                w-6 h-6 rounded-md ${t.class} border transition-all 
+                                ${localConfig.tint === t.id ? 'border-white/70 scale-105' : 'border-transparent opacity-50 hover:opacity-100'}
                             `}
                         />
                     ))}
@@ -570,10 +564,10 @@ const EditConfigPanel: React.FC<{
                         />
                     </div>
                     <div className="flex gap-2 shrink-0">
-                         <button onClick={onRemove} className="p-2 bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 rounded-lg transition-colors" title="Delete Widget">
+                         <button onClick={onRemove} className="p-2 bg-white/5 hover:bg-rose-500/15 text-white/40 hover:text-rose-300 rounded-md transition-colors" title="Delete Widget">
                              <Trash2 className="w-5 h-5" />
                          </button>
-                         <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors hidden md:block" title="Close">
+                         <button onClick={onClose} className="p-2 bg-white/10 hover:bg-white/20 rounded-md text-white transition-colors hidden md:block" title="Close">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
@@ -587,14 +581,14 @@ const EditConfigPanel: React.FC<{
                          <div className="grid grid-cols-2 gap-3">
                             <button 
                                 onClick={() => updateConfigImmediate({ colSpan: 1 })}
-                                className={`flex items-center justify-center gap-2 py-3 rounded-xl border transition-all
+                                className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${(!localConfig.colSpan || localConfig.colSpan === 1) ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
                                 <Layout className="w-4 h-4" /> <span className="text-sm">Regular</span>
                             </button>
                             <button 
                                 onClick={() => updateConfigImmediate({ colSpan: 2 })}
-                                className={`flex items-center justify-center gap-2 py-3 rounded-xl border transition-all
+                                className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${localConfig.colSpan === 2 ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
                                 <ArrowRightLeft className="w-4 h-4" /> <span className="text-sm">Wide</span>
@@ -615,10 +609,10 @@ const EditConfigPanel: React.FC<{
                                     { label: 'Show Seconds', key: 'showSeconds' },
                                     { label: '24-Hour Clock', key: 'use24Hour' },
                                 ].map((opt) => (
-                                    <label key={opt.key} className="flex items-center justify-between text-sm text-white/80 cursor-pointer p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                                    <label key={opt.key} className="flex items-center justify-between text-sm text-white/80 cursor-pointer p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                                         <span>{opt.label}</span>
-                                        <div className={`w-10 h-5 rounded-full relative transition-colors ${localConfig[opt.key] ? 'bg-purple-500' : 'bg-white/20'}`}>
-                                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${localConfig[opt.key] ? 'left-6' : 'left-1'}`} />
+                                        <div className={`w-10 h-5 rounded-md relative transition-colors ${localConfig[opt.key] ? 'bg-slate-500' : 'bg-white/20'}`}>
+                                            <div className={`absolute top-1 w-3 h-3 bg-white rounded transition-all ${localConfig[opt.key] ? 'left-6' : 'left-1'}`} />
                                             <input 
                                                 type="checkbox" 
                                                 checked={!!localConfig[opt.key]}
@@ -660,7 +654,7 @@ const EditConfigPanel: React.FC<{
                                     onChange={(e) => setNotesText(e.target.value)}
                                     placeholder="Write one note per line"
                                     rows={6}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500 transition-all resize-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all resize-none"
                                 />
                                 <p className="text-[10px] text-white/40">Each line becomes a bullet point.</p>
                             </div>
@@ -675,7 +669,7 @@ const EditConfigPanel: React.FC<{
                                         onChange={(e) => setQuoteText(e.target.value)}
                                         rows={4}
                                         placeholder="Enter your favorite quote"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all resize-none"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all resize-none"
                                     />
                                 </div>
                                 <div className="flex flex-col gap-2">
@@ -684,7 +678,7 @@ const EditConfigPanel: React.FC<{
                                         value={quoteAuthor}
                                         onChange={(e) => setQuoteAuthor(e.target.value)}
                                         placeholder="Quote author"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all"
                                     />
                                 </div>
                             </div>
@@ -743,12 +737,12 @@ const WeatherSettings: React.FC<{
                         onChange={(e) => setCityInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         placeholder="Enter City Name"
-                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all"
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all"
                     />
                     <button 
                         onClick={handleSearch}
                         disabled={isSearching}
-                        className="px-4 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-xl transition-colors font-medium text-sm border border-blue-500/20 flex items-center"
+                        className="px-4 bg-white/10 hover:bg-white/15 text-white/70 rounded-lg transition-colors font-medium text-sm border border-white/10 flex items-center"
                     >
                         {isSearching ? <Activity className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                     </button>
@@ -786,14 +780,14 @@ const StockSettings: React.FC<{
                         type="text" 
                         value={symbolInput}
                         onChange={(e) => setSymbolInput(e.target.value.toUpperCase())}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-green-500 font-mono uppercase tracking-wider"
+                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 font-mono uppercase tracking-wider"
                         placeholder="SPY"
                     />
                     <div className="absolute right-3 top-3.5 pointer-events-none">
                         {symbolInput !== config.symbol ? (
                             <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
                         ) : (
-                             <Check className="w-4 h-4 text-green-500" />
+                             <Check className="w-4 h-4 text-white/60" />
                         )}
                     </div>
                 </div>
@@ -852,10 +846,10 @@ const ShortcutsSettings: React.FC<{
 
     return (
         <div className="space-y-4">
-             <div className="p-4 bg-white/5 rounded-xl space-y-3 border border-white/5">
+             <div className="p-4 bg-white/5 rounded-lg space-y-3 border border-white/5">
                 <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-bold text-white/60 uppercase">{editId ? 'Edit Shortcut' : 'New Shortcut'}</span>
-                    {editId && <button onClick={handleCancel} className="text-xs text-red-400 hover:underline">Cancel</button>}
+                    {editId && <button onClick={handleCancel} className="text-xs text-rose-300 hover:underline">Cancel</button>}
                 </div>
                 <div className="flex flex-col gap-2">
                     <input 
@@ -875,7 +869,7 @@ const ShortcutsSettings: React.FC<{
                     onClick={handleSubmit} 
                     disabled={!linkTitle || !linkUrl} 
                     className={`w-full py-2 text-xs font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2
-                        ${editId ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30' : 'bg-white/10 hover:bg-white/20 text-white'}
+                        ${editId ? 'bg-white/15 text-white hover:bg-white/20' : 'bg-white/10 hover:bg-white/20 text-white'}
                     `}
                 >
                     {editId ? <Save className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
@@ -887,7 +881,7 @@ const ShortcutsSettings: React.FC<{
                 <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Active Links</label>
                 <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                     {links.map(l => (
-                        <div key={l.id} className={`flex items-center gap-3 bg-white/5 px-3 py-2 rounded-xl border transition-all ${editId === l.id ? 'border-blue-500/50 bg-blue-500/5' : 'border-transparent hover:border-white/10'}`}>
+                        <div key={l.id} className={`flex items-center gap-3 bg-white/5 px-3 py-2 rounded-lg border transition-all ${editId === l.id ? 'border-white/20 bg-white/10' : 'border-transparent hover:border-white/10'}`}>
                              {/* Favicon */}
                             <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                                 <img src={getFavicon(l.url)} className="w-4 h-4" onError={(e) => (e.target as HTMLImageElement).style.opacity = '0'} />
@@ -911,7 +905,7 @@ const ShortcutsSettings: React.FC<{
                                         onUpdate({ links: newLinks });
                                         if (editId === l.id) handleCancel();
                                     }} 
-                                    className="p-1.5 text-white/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    className="p-1.5 text-white/40 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors"
                                 >
                                     <Trash2 className="w-3 h-3" />
                                 </button>
@@ -919,7 +913,7 @@ const ShortcutsSettings: React.FC<{
                         </div>
                     ))}
                     {links.length === 0 && (
-                        <div className="text-center py-6 text-white/20 text-xs border border-dashed border-white/5 rounded-xl">
+                        <div className="text-center py-6 text-white/20 text-xs border border-dashed border-white/5 rounded-lg">
                             No shortcuts added yet.
                         </div>
                     )}

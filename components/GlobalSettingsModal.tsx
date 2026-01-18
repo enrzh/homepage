@@ -34,12 +34,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
 
   const syncStatus = (() => {
     if (!canSync) {
-      return { label: 'Cloud sync unavailable', detail: 'Server connection not configured', icon: CloudOff, tone: 'text-white/50 bg-white/10 border-white/10' };
+      return { label: 'Cloud sync unavailable', detail: 'Server connection not configured', icon: CloudOff, tone: 'text-white/60 bg-white/10 border-white/10' };
     }
     if (serverError) {
-      return { label: 'Sync paused', detail: 'Connection error while saving', icon: CloudOff, tone: 'text-red-300 bg-red-500/10 border-red-500/20' };
+      return { label: 'Sync paused', detail: 'Connection error while saving', icon: CloudOff, tone: 'text-rose-300 bg-rose-500/10 border-rose-500/20' };
     }
-    return { label: 'Cloud sync active', detail: 'All changes are saved automatically', icon: Cloud, tone: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' };
+    return { label: 'Cloud sync active', detail: 'All changes are saved automatically', icon: Cloud, tone: 'text-white/80 bg-white/10 border-white/15' };
   })();
 
   const StatusIcon = syncStatus.icon;
@@ -50,12 +50,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+        className="w-full max-w-md bg-[#111] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <h2 className="text-lg font-semibold text-white">Dashboard Settings</h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -64,7 +64,7 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
             {/* Title Setting */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+                    <div className="p-2 bg-white/10 rounded-md text-white/70">
                         <Type className="w-5 h-5" />
                     </div>
                     <div>
@@ -75,12 +75,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setShowTitle(!showTitle)}
                     className={`
-                        relative w-12 h-6 rounded-full transition-colors duration-200
-                        ${showTitle ? 'bg-purple-500' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-md transition-colors duration-200
+                        ${showTitle ? 'bg-slate-500' : 'bg-white/10'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
+                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
                         ${showTitle ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
@@ -89,7 +89,7 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
             {/* Search Preview Setting */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                    <div className="p-2 bg-white/10 rounded-md text-white/70">
                         <Search className="w-5 h-5" />
                     </div>
                     <div>
@@ -100,12 +100,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setEnableSearchPreview(!enableSearchPreview)}
                     className={`
-                        relative w-12 h-6 rounded-full transition-colors duration-200
-                        ${enableSearchPreview ? 'bg-blue-500' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-md transition-colors duration-200
+                        ${enableSearchPreview ? 'bg-slate-500' : 'bg-white/10'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
+                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
                         ${enableSearchPreview ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
@@ -114,7 +114,7 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
             {/* Widget Lock Setting */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-amber-500/20 rounded-lg text-amber-300">
+                    <div className="p-2 bg-white/10 rounded-md text-white/70">
                         <Lock className="w-5 h-5" />
                     </div>
                     <div>
@@ -125,12 +125,12 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                 <button 
                     onClick={() => setLockWidgets(!lockWidgets)}
                     className={`
-                        relative w-12 h-6 rounded-full transition-colors duration-200
-                        ${lockWidgets ? 'bg-amber-400' : 'bg-white/10'}
+                        relative w-12 h-6 rounded-md transition-colors duration-200
+                        ${lockWidgets ? 'bg-slate-500' : 'bg-white/10'}
                     `}
                 >
                     <div className={`
-                        absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
+                        absolute top-1 left-1 w-4 h-4 rounded bg-white transition-transform duration-200
                         ${lockWidgets ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
@@ -151,7 +151,7 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                         <button
                             onClick={onRetrySync}
                             disabled={isRetrying}
-                            className="px-3 py-2 rounded-lg text-xs font-medium bg-white/10 text-white/70 hover:text-white hover:bg-white/20 disabled:opacity-50 transition-colors flex items-center gap-2"
+                            className="px-3 py-2 rounded-md text-xs font-medium bg-white/10 text-white/70 hover:text-white hover:bg-white/20 disabled:opacity-50 transition-colors flex items-center gap-2"
                         >
                             <RefreshCw className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`} />
                             {isRetrying ? 'Retrying' : 'Retry'}
