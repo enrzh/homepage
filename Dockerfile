@@ -3,11 +3,10 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN apk add --no-cache python3 make g++ \
-  && npm install
+RUN npm install
 
 COPY . .
 
-EXPOSE 3033 3034
+EXPOSE 3033
 
-CMD ["sh", "./scripts/start-dev.sh"]
+CMD ["npm", "run", "dev"]
