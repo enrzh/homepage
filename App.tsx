@@ -15,7 +15,7 @@ const API_URL = (() => {
     if (typeof window === 'undefined') return null;
     const envUrl = import.meta.env.VITE_API_URL;
     if (envUrl) return envUrl;
-    return `${window.location.protocol}//${window.location.hostname}:3034/api/settings`;
+    return '/api/settings';
 })();
 
 const DEFAULT_WIDGETS: WidgetData[] = [
