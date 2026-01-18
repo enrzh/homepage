@@ -5,8 +5,7 @@ import path from 'path';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3034);
-const dataDir = path.join(process.cwd(), 'server', 'data');
-const settingsFile = path.join(dataDir, 'settings.json');
+const dbFile = path.join(process.cwd(), 'data.db');
 
 const DEFAULT_SETTINGS = {
   widgets: [
@@ -22,10 +21,6 @@ const DEFAULT_SETTINGS = {
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-
-const ensureDataDir = async () => {
-  await fs.mkdir(dataDir, { recursive: true });
-};
 
 const normalizeSettings = (payload) => {
   if (!payload || typeof payload !== 'object') {
@@ -43,30 +38,30 @@ const normalizeSettings = (payload) => {
   };
 };
 
-const loadSettings = async () => {
+const readDatabase = async () => {
   try {
-    const raw = await fs.readFile(settingsFile, 'utf8');
+    const raw = await fs.readFile(dbFile, 'utf8');
     const parsed = JSON.parse(raw);
     return normalizeSettings(parsed);
   } catch (error) {
     if (error.code !== 'ENOENT') {
-      console.error('Failed to read settings file, resetting to defaults.', error);
+      console.error('Failed to read database, resetting to defaults.', error);
     }
     return { ...DEFAULT_SETTINGS };
   }
 };
 
-const persistSettings = async (settings) => {
+const writeDatabase = async (settings) => {
   const payload = JSON.stringify(settings, null, 2);
-  const tempFile = `${settingsFile}.tmp`;
+  const tempFile = `${dbFile}.tmp`;
   await fs.writeFile(tempFile, payload, 'utf8');
-  await fs.rename(tempFile, settingsFile);
+  await fs.rename(tempFile, dbFile);
 };
 
 app.get('/api/settings', async (req, res) => {
   try {
-    const settings = await loadSettings();
-    await persistSettings(settings);
+    const settings = await readDatabase();
+    await writeDatabase(settings);
     res.json(settings);
   } catch (error) {
     console.error('Failed to load settings.', error);
@@ -82,7 +77,7 @@ app.post('/api/settings', async (req, res) => {
       return;
     }
     const normalized = normalizeSettings(incoming);
-    await persistSettings(normalized);
+    await writeDatabase(normalized);
     res.json({ success: true });
   } catch (error) {
     console.error('Failed to save settings.', error);
@@ -90,13 +85,6 @@ app.post('/api/settings', async (req, res) => {
   }
 });
 
-ensureDataDir()
-  .then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Failed to initialize settings storage.', error);
-    process.exit(1);
-  });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
+});
