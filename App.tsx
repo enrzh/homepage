@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil } from 'lucide-react';
-import { Reorder, AnimatePresence, motion } from 'framer-motion';
+import { Plus, Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical } from 'lucide-react';
+import { Reorder, AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
 import WeatherWidget from './components/widgets/WeatherWidget';
 import StockWidget from './components/widgets/StockWidget';
 import ClockWidget from './components/widgets/ClockWidget';
 import ShortcutsWidget from './components/widgets/ShortcutsWidget';
+import NotesWidget from './components/widgets/NotesWidget';
+import QuoteWidget from './components/widgets/QuoteWidget';
 import SettingsModal from './components/SettingsModal';
 import GlobalSettingsModal from './components/GlobalSettingsModal';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +25,8 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '2', type: 'weather', title: 'Weather', config: { tint: 'blue' } },
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
   { id: '4', type: 'shortcuts', title: 'Shortcuts', config: { tint: 'orange' } },
+  { id: '5', type: 'notes', title: 'Notes', config: { tint: 'purple', notes: ['Review sprint goals', 'Prep demo slides', 'Send recap email'] } },
+  { id: '6', type: 'quote', title: 'Quote', config: { tint: 'blue', quoteText: 'Small steps every day lead to massive change.', quoteAuthor: 'Nexus' } },
 ];
 
 const TINTS: { id: string; class: string; name: string }[] = [
@@ -40,6 +44,8 @@ const renderWidgetContent = (widget: WidgetData) => {
       case 'weather': return <WeatherWidget config={widget.config} />;
       case 'stocks': return <StockWidget config={widget.config} />;
       case 'shortcuts': return <ShortcutsWidget config={widget.config} />;
+      case 'notes': return <NotesWidget config={widget.config} />;
+      case 'quote': return <QuoteWidget config={widget.config} />;
       default: return null;
     }
 };
@@ -160,7 +166,15 @@ const App: React.FC = () => {
       id: uuidv4(),
       type,
       title: type.charAt(0).toUpperCase() + type.slice(1),
-      config: type === 'stocks' ? { symbol: 'AAPL' } : type === 'clock' ? { showDate: true, colSpan: 2 } : {},
+      config: type === 'stocks'
+        ? { symbol: 'AAPL' }
+        : type === 'clock'
+          ? { showDate: true, colSpan: 2 }
+          : type === 'notes'
+            ? { notes: ['Capture a thought', 'Add a quick reminder'] }
+            : type === 'quote'
+              ? { quoteText: 'Momentum is built one focused moment at a time.', quoteAuthor: 'Nexus' }
+              : {},
     };
     setWidgets([...widgets, newWidget]);
   };
@@ -246,7 +260,7 @@ const App: React.FC = () => {
                         {widgets.map((widget) => {
                             const isBeingEdited = editingWidgetId === widget.id;
                             return (
-                                <Reorder.Item
+                                <WidgetItem
                                     key={widget.id}
                                     value={widget}
                                     drag={!isBeingEdited && !lockWidgets}
@@ -300,18 +314,15 @@ const App: React.FC = () => {
         </div>
 
         {/* Edit Modal */}
-        <AnimatePresence>
-            {editingWidgetId && (
-                <EditWidgetModal 
-                    key="edit-modal"
-                    widgetId={editingWidgetId}
-                    widgets={widgets}
-                    onUpdate={updateWidgetFull}
-                    onClose={() => setEditingWidgetId(null)}
-                    onRemove={removeWidget}
-                />
-            )}
-        </AnimatePresence>
+        {editingWidgetId && (
+            <EditWidgetModal 
+                widgetId={editingWidgetId}
+                widgets={widgets}
+                onUpdate={updateWidgetFull}
+                onClose={() => setEditingWidgetId(null)}
+                onRemove={removeWidget}
+            />
+        )}
 
         <SettingsModal 
             isOpen={isAddModalOpen} 
@@ -339,11 +350,56 @@ const App: React.FC = () => {
 
 // -- Components --
 
+// 0. Draggable Widget Wrapper
+const WidgetItem: React.FC<{
+    widget: WidgetData;
+    isBeingEdited: boolean;
+    onEditStart: () => void;
+}> = ({ widget, isBeingEdited, onEditStart }) => {
+    const dragControls = useDragControls();
+
+    return (
+        <Reorder.Item
+            value={widget}
+            drag={!isBeingEdited}
+            dragListener={false}
+            dragControls={dragControls}
+            dragElastic={0.12}
+            dragMomentum={false}
+            whileDrag={{ 
+                scale: 1.04, 
+                zIndex: 100, 
+                cursor: "grabbing", 
+                backgroundColor: "rgba(30, 30, 30, 0.9)",
+                backdropFilter: "blur(12px)"
+            }}
+            transition={{ type: "spring", stiffness: 500, damping: 35 }}
+            layout
+            className={`
+                relative group list-none rounded-3xl
+                ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
+                h-[160px] md:h-[190px]
+            `}
+            as="li"
+        >
+            <div className={`w-full h-full transition-opacity duration-300 ${isBeingEdited ? 'opacity-0' : 'opacity-100'}`}>
+                <WidgetCard 
+                    widget={widget} 
+                    onEditStart={onEditStart}
+                    onDragStart={(event) => dragControls.start(event)}
+                >
+                    {renderWidgetContent(widget)}
+                </WidgetCard>
+            </div>
+            {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-3xl border border-white/5" />}
+        </Reorder.Item>
+    );
+};
+
 // 1. Widget Card (Grid Item)
 const WidgetCard: React.FC<{
     widget: WidgetData;
     children: React.ReactNode;
-    onRemove: () => void;
     onEditStart: () => void;
     layoutId: string;
     isLocked: boolean;
@@ -403,10 +459,7 @@ const EditWidgetModal: React.FC<{
 
     return (
         <>
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
+            <div
                 onClick={onClose}
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             />
@@ -434,6 +487,16 @@ const EditConfigPanel: React.FC<{
     // Local state to prevent typing blocking and allow "Live Preview" without committing to App state immediately
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
+    const [notesText, setNotesText] = useState((widget.config.notes || []).join('\n'));
+    const [quoteText, setQuoteText] = useState(widget.config.quoteText || '');
+    const [quoteAuthor, setQuoteAuthor] = useState(widget.config.quoteAuthor || '');
+
+    // Direct update wrapper for toggles/selectors
+    const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
+        const newConfig = { ...localConfig, ...updates };
+        setLocalConfig(newConfig);
+        onUpdate({ config: newConfig });
+    };
 
     // Debounced update for Title
     useEffect(() => {
@@ -445,12 +508,19 @@ const EditConfigPanel: React.FC<{
         return () => clearTimeout(timer);
     }, [localTitle]);
 
-    // Direct update wrapper for toggles/selectors
-    const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
-        const newConfig = { ...localConfig, ...updates };
-        setLocalConfig(newConfig);
-        onUpdate({ config: newConfig });
-    };
+    useEffect(() => {
+        if (widget.type !== 'notes') return;
+        const formattedNotes = notesText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean);
+        updateConfigImmediate({ notes: formattedNotes });
+    }, [notesText]);
+
+    useEffect(() => {
+        if (widget.type !== 'quote') return;
+        updateConfigImmediate({ quoteText, quoteAuthor });
+    }, [quoteText, quoteAuthor]);
 
     // Construct a temporary widget object for the Live Preview
     const previewWidget: WidgetData = {
@@ -461,8 +531,7 @@ const EditConfigPanel: React.FC<{
     const tintConfig = TINTS.find(t => t.id === localConfig.tint) || TINTS[0];
 
     return (
-        <motion.div
-            layoutId={`widget-container-${widget.id}`}
+        <div
             className={`
                 pointer-events-auto
                 w-full max-w-4xl 
@@ -606,10 +675,48 @@ const EditConfigPanel: React.FC<{
                                 onUpdate={updateConfigImmediate}
                             />
                         )}
+
+                        {widget.type === 'notes' && (
+                            <div className="space-y-2">
+                                <label className="text-sm text-white/60">Notes</label>
+                                <textarea
+                                    value={notesText}
+                                    onChange={(e) => setNotesText(e.target.value)}
+                                    placeholder="Write one note per line"
+                                    rows={6}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500 transition-all resize-none"
+                                />
+                                <p className="text-[10px] text-white/40">Each line becomes a bullet point.</p>
+                            </div>
+                        )}
+
+                        {widget.type === 'quote' && (
+                            <div className="space-y-3">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm text-white/60">Quote</label>
+                                    <textarea
+                                        value={quoteText}
+                                        onChange={(e) => setQuoteText(e.target.value)}
+                                        rows={4}
+                                        placeholder="Enter your favorite quote"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all resize-none"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm text-white/60">Author</label>
+                                    <input
+                                        value={quoteAuthor}
+                                        onChange={(e) => setQuoteAuthor(e.target.value)}
+                                        placeholder="Quote author"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 transition-all"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

@@ -1,4 +1,4 @@
-export type WidgetType = 'weather' | 'stocks' | 'shortcuts' | 'clock';
+export type WidgetType = 'weather' | 'stocks' | 'shortcuts' | 'clock' | 'notes' | 'quote';
 
 export interface ShortcutLink {
   id: string;
@@ -28,6 +28,13 @@ export interface WidgetConfig {
 
   // Shortcuts
   links?: ShortcutLink[]; 
+
+  // Notes
+  notes?: string[];
+
+  // Quote
+  quoteText?: string;
+  quoteAuthor?: string;
 
   [key: string]: any;
 }
