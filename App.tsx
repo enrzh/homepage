@@ -292,7 +292,7 @@ const App: React.FC = () => {
                                         </WidgetCard>
                                     </div>
                                     {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-3xl border border-white/5" />}
-                                </Reorder.Item>
+                                </WidgetItem>
                             );
                         })}
                         </AnimatePresence>
