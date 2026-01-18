@@ -16,13 +16,14 @@ View your app in AI Studio: https://ai.studio/apps/drive/1yVf9yDcsF1ct2xEkpnkReS
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+3. Run the app (starts both the Vite dev server and settings API):
    `npm run dev`
 
 ### Settings API (required)
 
-Settings are persisted in the database via the settings API. Start the API (`npm run server`) and set
-`VITE_API_URL` (e.g. `http://localhost:3034/api/settings`). If not set, the app defaults to `/api/settings`
-so the Vite dev server proxy is used. The dev server proxies `/api` to `VITE_API_PROXY_TARGET`
-(default: `http://localhost:3034`). This uses the SQLite-backed
-`settings.db` by default (override with `DB_FILE`). 
+Settings are persisted in the database via the settings API. The default `npm run dev` script starts
+the API (`npm run server`) alongside the Vite dev server. If you only want the frontend, use
+`npm run dev:client` and set `VITE_API_URL` (e.g. `http://localhost:3034/api/settings`). If not set,
+the app defaults to `/api/settings` so the Vite dev server proxy is used. The dev server proxies
+`/api` to `VITE_API_PROXY_TARGET` (default: `http://localhost:3034`). This uses the SQLite-backed
+`settings.db` by default (override with `DB_FILE`).
