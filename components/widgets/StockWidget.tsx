@@ -75,11 +75,11 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   if (error) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-4 text-white/50 group">
-        <AlertCircle className="w-8 h-8 mb-2 opacity-50 group-hover:text-red-400 transition-colors" />
+        <AlertCircle className="w-8 h-8 mb-2 opacity-50 group-hover:text-rose-300 transition-colors" />
         <span className="text-xs text-center mb-2">Could not load {symbol}</span>
         <button 
             onClick={fetchData} 
-            className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-full text-xs flex items-center gap-1 transition-colors"
+            className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-md text-xs flex items-center gap-1 transition-colors"
         >
             <RefreshCw className="w-3 h-3" /> Retry
         </button>
@@ -98,14 +98,14 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                     </h3>
                     {loading && <RefreshCw className="w-3 h-3 animate-spin text-white/20" />}
                     {!loading && !error && (
-                        <span className="flex h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" title="Live" />
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-slate-300/80 animate-pulse" title="Live" />
                     )}
                 </div>
                 <div className="text-xl md:text-2xl font-semibold flex items-center gap-2 tracking-tight">
                     {currentPrice ? `$${currentPrice.toFixed(2)}` : '---'}
                 </div>
             </div>
-            <div className={`text-right flex flex-col items-end ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+            <div className={`text-right flex flex-col items-end ${isPositive ? 'text-emerald-300' : 'text-rose-300'}`}>
                 <div className="text-xs md:text-sm font-medium flex items-center gap-1">
                     {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {Math.abs(percentChange).toFixed(2)}%
@@ -117,14 +117,14 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
         </div>
       
         {/* Chart */}
-        <div className="flex-1 min-h-[80px] md:min-h-[100px] -mx-2 -mb-2 rounded-2xl border border-white/5 bg-black/20 p-2">
+        <div className="flex-1 min-h-[80px] md:min-h-[100px] -mx-2 -mb-2 rounded-lg border border-white/5 bg-black/20 p-2">
             {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id={`colorValue-${symbol}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0.35}/>
-                            <stop offset="95%" stopColor={isPositive ? "#4ade80" : "#f87171"} stopOpacity={0.05}/>
+                            <stop offset="5%" stopColor={isPositive ? "#94a3b8" : "#fca5a5"} stopOpacity={0.28}/>
+                            <stop offset="95%" stopColor={isPositive ? "#94a3b8" : "#fca5a5"} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -132,7 +132,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                         content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                             return (
-                                <div className="bg-[#111] border border-white/10 rounded-lg p-2 text-xs shadow-xl backdrop-blur-md">
+                                <div className="bg-[#111] border border-white/10 rounded-md p-2 text-xs shadow-xl">
                                 <p className="text-white/50 mb-0.5">{payload[0].payload.time}</p>
                                 <p className="font-bold text-white">${Number(payload[0].value).toFixed(2)}</p>
                                 </div>
@@ -144,7 +144,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                     <Area 
                         type="monotone" 
                         dataKey="value" 
-                        stroke={isPositive ? "#4ade80" : "#f87171"} 
+                        stroke={isPositive ? "#94a3b8" : "#fca5a5"} 
                         fillOpacity={1} 
                         fill={`url(#colorValue-${symbol})`}
                         strokeWidth={2.5}

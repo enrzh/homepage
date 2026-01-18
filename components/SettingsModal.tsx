@@ -12,12 +12,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onAddWid
   if (!isOpen) return null;
 
   const widgetTypes: { type: WidgetType; label: string; icon: React.ReactNode; desc: string }[] = [
-    { type: 'clock', label: 'Clock', icon: <Clock className="w-6 h-6 text-purple-400" />, desc: 'Keep track of time' },
-    { type: 'weather', label: 'Weather', icon: <Cloud className="w-6 h-6 text-blue-400" />, desc: 'Local conditions' },
-    { type: 'stocks', label: 'Stock', icon: <TrendingUp className="w-6 h-6 text-green-400" />, desc: 'Market tracker' },
-    { type: 'shortcuts', label: 'Shortcuts', icon: <Link className="w-6 h-6 text-orange-400" />, desc: 'Quick links' },
-    { type: 'notes', label: 'Notes', icon: <StickyNote className="w-6 h-6 text-purple-300" />, desc: 'Quick thoughts' },
-    { type: 'quote', label: 'Quote', icon: <Quote className="w-6 h-6 text-blue-300" />, desc: 'Daily inspiration' },
+    { type: 'clock', label: 'Clock', icon: <Clock className="w-6 h-6 text-slate-200" />, desc: 'Keep track of time' },
+    { type: 'weather', label: 'Weather', icon: <Cloud className="w-6 h-6 text-slate-200" />, desc: 'Local conditions' },
+    { type: 'stocks', label: 'Stock', icon: <TrendingUp className="w-6 h-6 text-slate-200" />, desc: 'Market tracker' },
+    { type: 'shortcuts', label: 'Shortcuts', icon: <Link className="w-6 h-6 text-slate-200" />, desc: 'Quick links' },
+    { type: 'notes', label: 'Notes', icon: <StickyNote className="w-6 h-6 text-slate-200" />, desc: 'Quick thoughts' },
+    { type: 'quote', label: 'Quote', icon: <Quote className="w-6 h-6 text-slate-200" />, desc: 'Daily inspiration' },
   ];
 
   return (
@@ -26,12 +26,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onAddWid
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-[#111] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+        className="w-full max-w-2xl bg-[#111] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <h2 className="text-lg font-semibold text-white">Add Widget</h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -43,13 +43,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onAddWid
                         onAddWidget(item.type);
                         onClose();
                     }}
-                    className="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.08] hover:border-white/20 transition-all text-left group"
+                    className="flex items-center gap-4 p-4 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 transition-all text-left group"
                 >
-                    <div className="p-3 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+                    <div className="p-3 rounded-md bg-white/5 group-hover:bg-white/10 transition-colors">
                         {item.icon}
                     </div>
                     <div>
-                        <h3 className="font-medium text-white group-hover:text-blue-200 transition-colors">{item.label}</h3>
+                        <h3 className="font-medium text-white">{item.label}</h3>
                         <p className="text-sm text-white/40">{item.desc}</p>
                     </div>
                     <Plus className="w-5 h-5 text-white/20 ml-auto group-hover:text-white transition-colors" />

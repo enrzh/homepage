@@ -43,17 +43,17 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config }) => {
   }, [config.city, config.lat, config.lon]);
 
   if (loading) return <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin text-white/50" /></div>;
-  if (error) return <div className="h-full flex flex-col items-center justify-center text-xs text-red-300 p-4 text-center"><span>{error}</span></div>;
+  if (error) return <div className="h-full flex flex-col items-center justify-center text-xs text-rose-300 p-4 text-center"><span>{error}</span></div>;
   if (!weather) return null;
 
   const getIcon = () => {
     const { condition, isDay } = weather;
     const size = "w-8 h-8 md:w-10 md:h-10";
-    if (condition === 'Clear') return isDay ? <Sun className={`${size} text-yellow-400`} /> : <Moon className={`${size} text-blue-200`} />;
-    if (condition === 'Rain') return <CloudRain className={`${size} text-blue-400`} />;
+    if (condition === 'Clear') return isDay ? <Sun className={`${size} text-slate-200`} /> : <Moon className={`${size} text-slate-300`} />;
+    if (condition === 'Rain') return <CloudRain className={`${size} text-slate-300`} />;
     if (condition === 'Snow') return <CloudSnow className={`${size} text-white`} />;
-    if (condition === 'Storm') return <CloudLightning className={`${size} text-purple-400`} />;
-    return <Cloud className={`${size} text-gray-300`} />;
+    if (condition === 'Storm') return <CloudLightning className={`${size} text-slate-200`} />;
+    return <Cloud className={`${size} text-slate-300`} />;
   };
 
   return (

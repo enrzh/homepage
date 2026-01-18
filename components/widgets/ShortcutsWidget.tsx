@@ -55,11 +55,11 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
             href={sc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-2 rounded-full border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="group flex items-center gap-2 rounded-md border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             title={sc.title}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div className="w-7 h-7 rounded-full bg-white/5 p-1 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-7 h-7 rounded-md bg-white/5 p-1 flex items-center justify-center overflow-hidden shrink-0">
               <img
                 src={getFavicon(sc.url)}
                 alt={sc.title}

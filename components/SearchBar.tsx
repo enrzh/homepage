@@ -81,17 +81,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
   return (
     <div ref={containerRef} className="w-full max-w-2xl relative z-30">
       <div className="relative group">
-        <div className={`
-          absolute inset-0 bg-gradient-to-r from-slate-500/20 via-slate-600/20 to-slate-700/20 rounded-3xl blur-2xl transition-opacity duration-500
-          ${isFocused ? 'opacity-100' : 'opacity-0'}
-        `} />
-        
         {/* Input Container */}
         <div className={`
-          relative flex items-center bg-slate-950/70 backdrop-blur-2xl border border-white/10 transition-all duration-300 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.9)]
+          relative flex items-center bg-slate-950/80 border border-white/10 transition-all duration-300 shadow-[0_18px_45px_-35px_rgba(0,0,0,0.9)]
           
           /* Default (Mobile/Bottom) Shape */
-          rounded-3xl
+          rounded-lg
           
           /* Desktop when focused: flatten bottom corner to attach to suggestions */
           ${isFocused ? 'md:border-white/30 md:shadow-[0_28px_60px_-35px_rgba(0,0,0,0.9)]' : 'hover:border-white/20'}
@@ -113,21 +108,21 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
             <button
               onClick={() => handleSearch('perplexity')}
               title="Perplexity"
-              className="p-2 md:p-2 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
+              className="p-2 md:p-2 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
             >
               <Bot className="w-5 h-5" />
             </button>
             <button
               onClick={() => handleSearch('google')}
               title="Google"
-              className="p-2 md:p-2 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
+              className="p-2 md:p-2 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
             >
               <Globe className="w-5 h-5" />
             </button>
             <button
               onClick={() => handleSearch('google_ai')}
               title="Google AI"
-              className="p-2 md:p-2 rounded-xl hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
+              className="p-2 md:p-2 rounded-md hover:bg-white/10 text-slate-300 hover:text-white transition-colors active:bg-white/5"
             >
               <Sparkles className="w-5 h-5" />
             </button>
@@ -137,13 +132,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
         {/* Suggestions Dropdown */}
         {hasSuggestions && (
             <div className={`
-                absolute left-0 right-0 bg-slate-950/90 backdrop-blur-2xl border border-white/10 overflow-hidden shadow-2xl
+                absolute left-0 right-0 bg-slate-950/90 border border-white/10 overflow-hidden shadow-2xl
                 
                 /* Mobile: Pop UP (bottom-full) with gap */
-                bottom-full mb-2 rounded-2xl
+                bottom-full mb-2 rounded-lg
                 
                 /* Desktop: Pop DOWN (top-full) attached */
-                md:bottom-auto md:top-full md:mb-0 md:rounded-t-none md:rounded-b-3xl md:border-t-0
+                md:bottom-auto md:top-full md:mb-0 md:rounded-t-none md:rounded-b-lg md:border-t-0
             `}>
                 {suggestions.slice(0, 5).map((item, index) => (
                     <button
