@@ -27,12 +27,34 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      html {
+        color-scheme: dark;
+        background-color: #050505;
+      }
       body {
         font-family: 'Inter', sans-serif;
         background-color: #050505;
         user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
+      }
+      .toggle-switch,
+      .toggle-knob {
+        forced-color-adjust: none;
+      }
+      @media (forced-colors: active) {
+        .toggle-switch {
+          background-color: Canvas;
+          border-color: ButtonText;
+        }
+        .toggle-switch[aria-checked="true"] {
+          background-color: Highlight;
+          border-color: Highlight;
+        }
+        .toggle-knob {
+          background-color: Canvas;
+          border-color: ButtonText;
+        }
       }
       /* Custom scrollbar */
       ::-webkit-scrollbar {

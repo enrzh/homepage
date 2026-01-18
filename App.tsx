@@ -11,6 +11,7 @@ import NotesWidget from './components/widgets/NotesWidget';
 import QuoteWidget from './components/widgets/QuoteWidget';
 import SettingsModal from './components/SettingsModal';
 import GlobalSettingsModal from './components/GlobalSettingsModal';
+import ToggleSwitch from './components/ToggleSwitch';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = (() => {
@@ -587,18 +588,14 @@ const EditConfigPanel: React.FC<{
                                     { label: 'Show Seconds', key: 'showSeconds' },
                                     { label: '24-Hour Clock', key: 'use24Hour' },
                                 ].map((opt) => (
-                                    <label key={opt.key} className="flex items-center justify-between text-sm text-white/80 cursor-pointer p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                                    <div key={opt.key} className="flex items-center justify-between text-sm text-white/80 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                                         <span>{opt.label}</span>
-                                        <div className={`w-11 h-6 rounded-full relative border transition-all ${localConfig[opt.key] ? 'bg-[#0d1b2a] border-white/70 shadow-[0_0_12px_rgba(13,27,42,0.7)]' : 'bg-white/10 border-white/20'}`}>
-                                            <div className={`absolute top-0.5 w-5 h-5 bg-[#0d1b2a] rounded-full shadow-md transition-all ring-2 ring-white/80 ${localConfig[opt.key] ? 'left-5' : 'left-0.5'}`} />
-                                            <input 
-                                                type="checkbox" 
-                                                checked={!!localConfig[opt.key]}
-                                                onChange={(e) => updateConfigImmediate({ [opt.key]: e.target.checked })}
-                                                className="hidden"
-                                            />
-                                        </div>
-                                    </label>
+                                        <ToggleSwitch
+                                            checked={!!localConfig[opt.key]}
+                                            onChange={(checked) => updateConfigImmediate({ [opt.key]: checked })}
+                                            label={opt.label}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}
