@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Plus, Clock, Cloud, TrendingUp, Link } from 'lucide-react';
+import { X, Plus, Clock, Cloud, TrendingUp, Link, StickyNote, Quote } from 'lucide-react';
 import { WidgetType } from '../types';
 
 interface SettingsModalProps {
@@ -16,6 +16,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onAddWid
     { type: 'weather', label: 'Weather', icon: <Cloud className="w-6 h-6 text-blue-400" />, desc: 'Local conditions' },
     { type: 'stocks', label: 'Stock', icon: <TrendingUp className="w-6 h-6 text-green-400" />, desc: 'Market tracker' },
     { type: 'shortcuts', label: 'Shortcuts', icon: <Link className="w-6 h-6 text-orange-400" />, desc: 'Quick links' },
+    { type: 'notes', label: 'Notes', icon: <StickyNote className="w-6 h-6 text-purple-300" />, desc: 'Quick thoughts' },
+    { type: 'quote', label: 'Quote', icon: <Quote className="w-6 h-6 text-blue-300" />, desc: 'Daily inspiration' },
   ];
 
   return (
