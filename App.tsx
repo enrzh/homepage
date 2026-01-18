@@ -37,6 +37,11 @@ const TINTS: { id: string; class: string; name: string }[] = [
     { id: 'orange', class: 'from-orange-500/10 to-red-500/10', name: 'Sunset' },
 ];
 
+const ensureWidgetConfig = (widget: WidgetData): WidgetData => ({
+    ...widget,
+    config: widget.config ?? {},
+});
+
 // Standalone render function for use in App and Editor
 const renderWidgetContent = (widget: WidgetData) => {
     switch (widget.type) {
@@ -76,7 +81,8 @@ const App: React.FC = () => {
     enableSearchPreview: boolean;
     lockWidgets: boolean;
   }>) => {
-    setWidgets(data.widgets ?? DEFAULT_WIDGETS);
+    const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS).map(ensureWidgetConfig);
+    setWidgets(nextWidgets);
     setAppTitle(data.appTitle ?? 'Nexus');
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
