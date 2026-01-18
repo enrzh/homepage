@@ -589,8 +589,8 @@ const EditConfigPanel: React.FC<{
                                 ].map((opt) => (
                                     <label key={opt.key} className="flex items-center justify-between text-sm text-white/80 cursor-pointer p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                                         <span>{opt.label}</span>
-                                        <div className={`w-11 h-6 rounded-full relative border transition-all ${localConfig[opt.key] ? 'bg-white/80 border-white/70 shadow-[0_0_12px_rgba(255,255,255,0.35)]' : 'bg-white/10 border-white/20'}`}>
-                                            <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-all ${localConfig[opt.key] ? 'left-5' : 'left-0.5'}`} />
+                                        <div className={`w-11 h-6 rounded-full relative border transition-all ${localConfig[opt.key] ? 'bg-[#0d1b2a] border-white/70 shadow-[0_0_12px_rgba(13,27,42,0.7)]' : 'bg-white/10 border-white/20'}`}>
+                                            <div className={`absolute top-0.5 w-5 h-5 bg-[#0d1b2a] rounded-full shadow-md transition-all ring-2 ring-white/80 ${localConfig[opt.key] ? 'left-5' : 'left-0.5'}`} />
                                             <input 
                                                 type="checkbox" 
                                                 checked={!!localConfig[opt.key]}
