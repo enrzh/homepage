@@ -208,7 +208,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#050505] text-white font-sans overflow-hidden flex flex-col relative selection:bg-purple-500/30 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),_transparent_45%),radial-gradient(circle_at_bottom,_rgba(168,85,247,0.12),_transparent_45%)]">
+    <div className="h-[100dvh] w-full bg-[#050607] text-white font-sans overflow-hidden flex flex-col relative selection:bg-purple-500/30 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.16),_transparent_50%),radial-gradient(circle_at_bottom,_rgba(168,85,247,0.18),_transparent_45%)]">
         {/* Fixed Background */}
         <div className="absolute inset-0 pointer-events-none z-0">
             <div className="absolute top-[-20%] left-[-10%] w-[45%] h-[45%] bg-blue-600/10 rounded-full blur-[140px]" />
@@ -246,7 +246,7 @@ const App: React.FC = () => {
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-7xl font-bold bg-white/[0.02] text-center border border-transparent outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/5 hover:border-white/10 focus:border-purple-500/40 rounded-[28px] transition-colors px-4 md:px-6 py-3"
+                            className="text-4xl md:text-7xl font-bold bg-white/[0.04] text-center border border-white/5 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/10 hover:border-white/20 focus:border-purple-500/40 rounded-[28px] transition-all px-4 md:px-6 py-3 backdrop-blur-md shadow-[0_20px_60px_-40px_rgba(0,0,0,0.9)]"
                             placeholder="Dashboard Name"
                         />
                     </div>
@@ -392,12 +392,12 @@ const WidgetCard: React.FC<{
                 }
             }}
             className={`
-                w-full h-full relative overflow-hidden backdrop-blur-md border border-white/5 hover:border-white/20 transition-all shadow-[0_20px_50px_-35px_rgba(0,0,0,0.8)] hover:shadow-[0_30px_70px_-30px_rgba(0,0,0,0.9)] group rounded-3xl
+                w-full h-full relative overflow-hidden backdrop-blur-xl border border-white/10 hover:border-white/30 transition-all shadow-[0_20px_60px_-40px_rgba(0,0,0,0.9)] hover:shadow-[0_30px_80px_-35px_rgba(0,0,0,0.95)] hover:-translate-y-0.5 group rounded-[28px]
                 ${bgClass}
             `}
         >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/30 opacity-70" />
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_55%)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/40 opacity-70" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.22),_transparent_60%)]" />
             {!isLocked && (
                 <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                      <button 

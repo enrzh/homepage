@@ -41,52 +41,47 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   const visibleCount = Math.min(displayLinks.length, maxItems);
 
   return (
-    <div className="h-full flex flex-col p-4 text-white gap-3">
+    <div className="h-full flex flex-col p-4 text-white gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">
+        <h3 className="text-[11px] font-semibold text-white/50 uppercase tracking-[0.2em]">
           {title}
         </h3>
-        <span className="text-[10px] text-white/40 font-medium">
-          {visibleCount} link{visibleCount === 1 ? '' : 's'}
-        </span>
+        <span className="text-[10px] text-white/30 font-medium">{visibleCount}</span>
       </div>
-      <div className="flex-1 min-h-0 rounded-2xl border border-white/10 bg-white/5 p-2">
-        <div className={`grid ${gridClass} gap-2 md:gap-3 h-full content-start auto-rows-[minmax(0,1fr)]`}>
-          {displayLinks.slice(0, maxItems).map((sc) => (
-            <a
-              key={sc.id}
-              href={sc.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col justify-between gap-2 rounded-xl border border-white/10 bg-white/5 p-2 transition-colors hover:border-white/30 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              title={sc.title}
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-white/10 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                  <img
-                    src={getFavicon(sc.url)}
-                    alt={sc.title}
-                    className="w-4 h-4 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                      (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  <Globe className="w-4 h-4 text-white/50 hidden" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-semibold text-white/90 truncate">
-                    {sc.title}
-                  </div>
-                  <div className="text-[10px] text-white/40 truncate">
-                    {getHostname(sc.url)}
-                  </div>
-                </div>
+      <div className={`grid ${gridClass} gap-2 md:gap-3 flex-1 content-start auto-rows-min`}>
+        {displayLinks.slice(0, maxItems).map((sc) => (
+          <a
+            key={sc.id}
+            href={sc.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 rounded-full border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            title={sc.title}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <div className="w-7 h-7 rounded-full bg-white/5 p-1 flex items-center justify-center overflow-hidden shrink-0">
+              <img
+                src={getFavicon(sc.url)}
+                alt={sc.title}
+                className="w-4 h-4 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <Globe className="w-4 h-4 text-white/40 hidden" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] font-semibold text-white/90 truncate">
+                {sc.title}
               </div>
-            </a>
-          ))}
-        </div>
+              <div className="text-[10px] text-white/30 truncate">
+                {getHostname(sc.url)}
+              </div>
+            </div>
+            <span className="text-[10px] text-white/20 group-hover:text-white/50 transition-colors">↗</span>
+          </a>
+        ))}
       </div>
     </div>
   );
