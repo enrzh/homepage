@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical } from 'lucide-react';
-import { Reorder, AnimatePresence, motion, useDragControls } from 'framer-motion';
+import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
 import WeatherWidget from './components/widgets/WeatherWidget';
@@ -266,7 +266,7 @@ const App: React.FC = () => {
                         {widgets.map((widget) => {
                             const isBeingEdited = editingWidgetId === widget.id;
                             return (
-                                <WidgetItem
+                                <Reorder.Item
                                     key={widget.id}
                                     value={widget}
                                     drag={!isBeingEdited && !lockWidgets}
@@ -298,7 +298,7 @@ const App: React.FC = () => {
                                         </WidgetCard>
                                     </div>
                                     {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-3xl border border-white/5" />}
-                                </WidgetItem>
+                                </Reorder.Item>
                             );
                         })}
                         </AnimatePresence>
@@ -355,52 +355,6 @@ const App: React.FC = () => {
 };
 
 // -- Components --
-
-// 0. Draggable Widget Wrapper
-const WidgetItem: React.FC<{
-    widget: WidgetData;
-    isBeingEdited: boolean;
-    onEditStart: () => void;
-}> = ({ widget, isBeingEdited, onEditStart }) => {
-    const dragControls = useDragControls();
-
-    return (
-        <Reorder.Item
-            value={widget}
-            drag={!isBeingEdited}
-            dragListener={false}
-            dragControls={dragControls}
-            dragElastic={0.12}
-            dragMomentum={false}
-            whileDrag={{ 
-                scale: 1.04, 
-                zIndex: 100, 
-                cursor: "grabbing", 
-                backgroundColor: "rgba(30, 30, 30, 0.9)",
-                backdropFilter: "blur(12px)"
-            }}
-            transition={{ type: "spring", stiffness: 500, damping: 35 }}
-            layout
-            className={`
-                relative group list-none rounded-3xl
-                ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
-                h-[160px] md:h-[190px]
-            `}
-            as="li"
-        >
-            <div className={`w-full h-full transition-opacity duration-300 ${isBeingEdited ? 'opacity-0' : 'opacity-100'}`}>
-                <WidgetCard 
-                    widget={widget} 
-                    onEditStart={onEditStart}
-                    onDragStart={(event) => dragControls.start(event)}
-                >
-                    {renderWidgetContent(widget)}
-                </WidgetCard>
-            </div>
-            {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-3xl border border-white/5" />}
-        </Reorder.Item>
-    );
-};
 
 // 1. Widget Card (Grid Item)
 const WidgetCard: React.FC<{
