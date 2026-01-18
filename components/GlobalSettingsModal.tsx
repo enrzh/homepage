@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Type, Search, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { X, Type, Search, Cloud, CloudOff, RefreshCw, Lock } from 'lucide-react';
 
 interface GlobalSettingsModalProps {
   isOpen: boolean;
@@ -8,6 +8,8 @@ interface GlobalSettingsModalProps {
   setShowTitle: (show: boolean) => void;
   enableSearchPreview: boolean;
   setEnableSearchPreview: (enable: boolean) => void;
+  lockWidgets: boolean;
+  setLockWidgets: (locked: boolean) => void;
   canSync: boolean;
   serverError: boolean;
   isRetrying: boolean;
@@ -21,6 +23,8 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
   setShowTitle,
   enableSearchPreview,
   setEnableSearchPreview,
+  lockWidgets,
+  setLockWidgets,
   canSync,
   serverError,
   isRetrying,
@@ -97,6 +101,31 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
                     <div className={`
                         absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
                         ${enableSearchPreview ? 'translate-x-6' : 'translate-x-0'}
+                    `} />
+                </button>
+            </div>
+
+            {/* Widget Lock Setting */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-amber-500/20 rounded-lg text-amber-300">
+                        <Lock className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-medium text-white">Lock Widgets</h3>
+                        <p className="text-xs text-white/40">Disable widget dragging and editing</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => setLockWidgets(!lockWidgets)}
+                    className={`
+                        relative w-12 h-6 rounded-full transition-colors duration-200
+                        ${lockWidgets ? 'bg-amber-400' : 'bg-white/10'}
+                    `}
+                >
+                    <div className={`
+                        absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-200
+                        ${lockWidgets ? 'translate-x-6' : 'translate-x-0'}
                     `} />
                 </button>
             </div>
