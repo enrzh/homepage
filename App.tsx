@@ -220,7 +220,7 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={() => setIsGlobalSettingsOpen(true)}
-                            className="p-3 md:p-2 rounded-md text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
                             title="Settings"
                         >
                             <Settings className="w-6 h-6 md:w-5 md:h-5" />
