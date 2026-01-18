@@ -42,6 +42,15 @@ const ensureWidgetConfig = (widget: WidgetData): WidgetData => ({
     config: widget.config ?? {},
 });
 
+const buildWidgetOrder = (items: WidgetData[]) => items.map((widget) => widget.id);
+
+const reorderWidgets = (items: WidgetData[], order: string[]) => {
+    const widgetMap = new Map(items.map((widget) => [widget.id, widget]));
+    const ordered = order.map((id) => widgetMap.get(id)).filter(Boolean) as WidgetData[];
+    const remaining = items.filter((widget) => !order.includes(widget.id));
+    return [...ordered, ...remaining];
+};
+
 // Standalone render function for use in App and Editor
 const renderWidgetContent = (widget: WidgetData) => {
     switch (widget.type) {
@@ -58,6 +67,7 @@ const renderWidgetContent = (widget: WidgetData) => {
 const App: React.FC = () => {
   // State
   const [widgets, setWidgets] = useState<WidgetData[]>(DEFAULT_WIDGETS);
+  const [widgetOrder, setWidgetOrder] = useState<string[]>(buildWidgetOrder(DEFAULT_WIDGETS));
   const [appTitle, setAppTitle] = useState('Nexus');
   const [showTitle, setShowTitle] = useState(true);
   const [enableSearchPreview, setEnableSearchPreview] = useState(true);
@@ -83,6 +93,7 @@ const App: React.FC = () => {
   }>) => {
     const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS).map(ensureWidgetConfig);
     setWidgets(nextWidgets);
+    setWidgetOrder(buildWidgetOrder(nextWidgets));
     setAppTitle(data.appTitle ?? 'Nexus');
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
@@ -180,13 +191,15 @@ const App: React.FC = () => {
             ? { notes: ['Capture a thought', 'Add a quick reminder'] }
             : type === 'quote'
               ? { quoteText: 'Momentum is built one focused moment at a time.', quoteAuthor: 'Nexus' }
-              : {},
+          : {},
     };
-    setWidgets([...widgets, newWidget]);
+    setWidgets((prev) => [...prev, newWidget]);
+    setWidgetOrder((prev) => [...prev, newWidget.id]);
   };
 
   const removeWidget = (id: string) => {
-    setWidgets(widgets.filter(w => w.id !== id));
+    setWidgets((prev) => prev.filter(w => w.id !== id));
+    setWidgetOrder((prev) => prev.filter((widgetId) => widgetId !== id));
     if (editingWidgetId === id) setEditingWidgetId(null);
   };
 
@@ -257,18 +270,21 @@ const App: React.FC = () => {
                     {isLoaded && (
                     <Reorder.Group 
                         axis="y" 
-                        values={widgets} 
-                        onReorder={setWidgets} 
+                        values={widgetOrder} 
+                        onReorder={(nextOrder) => {
+                            setWidgetOrder(nextOrder);
+                            setWidgets((prev) => reorderWidgets(prev, nextOrder));
+                        }} 
                         className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
-                        {widgets.map((widget) => {
+                        {reorderWidgets(widgets, widgetOrder).map((widget) => {
                             const isBeingEdited = editingWidgetId === widget.id;
                             return (
                                 <Reorder.Item
                                     key={widget.id}
-                                    value={widget}
+                                    value={widget.id}
                                     drag={!isBeingEdited && !lockWidgets}
                                     dragMomentum={false}
                                     whileDrag={{ 

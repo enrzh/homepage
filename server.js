@@ -21,6 +21,7 @@ const DEFAULT_SETTINGS = {
   appTitle: 'Nexus',
   showTitle: true,
   enableSearchPreview: true,
+  lockWidgets: false,
 };
 
 app.use(cors());
@@ -39,6 +40,7 @@ const normalizeSettings = (payload) => {
       typeof payload.enableSearchPreview === 'boolean'
         ? payload.enableSearchPreview
         : DEFAULT_SETTINGS.enableSearchPreview,
+    lockWidgets: typeof payload.lockWidgets === 'boolean' ? payload.lockWidgets : DEFAULT_SETTINGS.lockWidgets,
   };
 };
 
