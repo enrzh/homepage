@@ -25,10 +25,9 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
   { id: '2', type: 'weather', title: 'Weather', config: { tint: 'blue' } },
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
-  { id: '4', type: 'shortcuts', title: 'Shortcuts', config: { tint: 'orange' } },
-  { id: '5', type: 'notes', title: 'Notes', config: { tint: 'purple', notes: ['Review sprint goals', 'Prep demo slides', 'Send recap email'] } },
-  { id: '6', type: 'quote', title: 'Quote', config: { tint: 'blue', quoteGenre: 'inspirational' } },
 ];
+
+const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['shortcuts', 'notes', 'quote']);
 
 const TINTS: { id: string; class: string; name: string }[] = [
     { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },
@@ -92,7 +91,9 @@ const App: React.FC = () => {
     enableSearchPreview: boolean;
     lockWidgets: boolean;
   }>) => {
-    const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS).map(ensureWidgetConfig);
+    const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS)
+      .map(ensureWidgetConfig)
+      .filter((widget) => !DISABLED_WIDGET_TYPES.has(widget.type));
     setWidgets(nextWidgets);
     setWidgetOrder(buildWidgetOrder(nextWidgets));
     setAppTitle(data.appTitle ?? 'Homepage');
@@ -180,6 +181,8 @@ const App: React.FC = () => {
 
 
   const addWidget = (type: WidgetType) => {
+    if (DISABLED_WIDGET_TYPES.has(type)) return;
+
     const newWidget: WidgetData = {
       id: uuidv4(),
       type,
