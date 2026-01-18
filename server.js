@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS = {
     { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
     { id: '4', type: 'shortcuts', title: 'Shortcuts', config: { tint: 'orange' } },
   ],
-  appTitle: 'Nexus',
+  appTitle: 'Homepage',
   showTitle: true,
   enableSearchPreview: true,
   lockWidgets: false,
