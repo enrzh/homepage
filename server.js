@@ -1,17 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import Database from 'better-sqlite3';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 const app = express();
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3034;
+const PORT = Number(process.env.PORT || 3034);
 const dataDir = path.join(process.cwd(), 'server', 'data');
+const settingsFile = path.join(dataDir, 'settings.json');
 
-app.use(cors());
-app.use(express.json({ limit: '2mb' }));
-
-const DEFAULT_DATA = {
+const DEFAULT_SETTINGS = {
   widgets: [
     { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
     { id: '2', type: 'weather', title: 'Weather', config: { tint: 'blue' } },
@@ -23,100 +20,83 @@ const DEFAULT_DATA = {
   enableSearchPreview: true,
 };
 
-fs.mkdirSync(dataDir, { recursive: true });
-const dbPath = process.env.DB_FILE || path.join(dataDir, 'settings.db');
-let db;
-let selectSettings;
-let upsertSettings;
+app.use(cors());
+app.use(express.json({ limit: '2mb' }));
 
-try {
-  db = new Database(dbPath);
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS settings (
-      key TEXT PRIMARY KEY,
-      data TEXT NOT NULL,
-      updated_at TEXT NOT NULL
-    )
-  `);
-
-  selectSettings = db.prepare('SELECT data FROM settings WHERE key = ?');
-  upsertSettings = db.prepare(`
-    INSERT INTO settings (key, data, updated_at)
-    VALUES (?, ?, ?)
-    ON CONFLICT(key) DO UPDATE SET
-      data = excluded.data,
-      updated_at = excluded.updated_at
-  `);
-} catch (error) {
-  console.error('Failed to initialize settings database.', error);
-  process.exit(1);
-}
-
-const saveSettings = (key, data) => {
-  const payload = JSON.stringify(data);
-  upsertSettings.run(key, payload, new Date().toISOString());
+const ensureDataDir = async () => {
+  await fs.mkdir(dataDir, { recursive: true });
 };
 
-const normalizeSettings = (data) => {
-  if (!data || typeof data !== 'object') {
-    return DEFAULT_DATA;
+const normalizeSettings = (payload) => {
+  if (!payload || typeof payload !== 'object') {
+    return { ...DEFAULT_SETTINGS };
   }
+
   return {
-    widgets: Array.isArray(data.widgets) ? data.widgets : DEFAULT_DATA.widgets,
-    appTitle: typeof data.appTitle === 'string' ? data.appTitle : DEFAULT_DATA.appTitle,
-    showTitle: typeof data.showTitle === 'boolean' ? data.showTitle : DEFAULT_DATA.showTitle,
+    widgets: Array.isArray(payload.widgets) ? payload.widgets : DEFAULT_SETTINGS.widgets,
+    appTitle: typeof payload.appTitle === 'string' ? payload.appTitle : DEFAULT_SETTINGS.appTitle,
+    showTitle: typeof payload.showTitle === 'boolean' ? payload.showTitle : DEFAULT_SETTINGS.showTitle,
     enableSearchPreview:
-      typeof data.enableSearchPreview === 'boolean'
-        ? data.enableSearchPreview
-        : DEFAULT_DATA.enableSearchPreview,
+      typeof payload.enableSearchPreview === 'boolean'
+        ? payload.enableSearchPreview
+        : DEFAULT_SETTINGS.enableSearchPreview,
   };
 };
 
-const readSettings = (key) => {
-  const row = selectSettings.get(key);
-  if (!row) {
-    saveSettings(key, DEFAULT_DATA);
-    return DEFAULT_DATA;
-  }
+const loadSettings = async () => {
   try {
-    const parsed = JSON.parse(row.data);
-    const normalized = normalizeSettings(parsed);
-    if (normalized === DEFAULT_DATA) {
-      saveSettings(key, DEFAULT_DATA);
-    }
-    return normalized;
+    const raw = await fs.readFile(settingsFile, 'utf8');
+    const parsed = JSON.parse(raw);
+    return normalizeSettings(parsed);
   } catch (error) {
-    console.error('Failed to parse settings payload, resetting to defaults.', error);
-    saveSettings(key, DEFAULT_DATA);
-    return DEFAULT_DATA;
+    if (error.code !== 'ENOENT') {
+      console.error('Failed to read settings file, resetting to defaults.', error);
+    }
+    return { ...DEFAULT_SETTINGS };
   }
 };
 
-app.get('/api/settings', (req, res) => {
+const persistSettings = async (settings) => {
+  const payload = JSON.stringify(settings, null, 2);
+  const tempFile = `${settingsFile}.tmp`;
+  await fs.writeFile(tempFile, payload, 'utf8');
+  await fs.rename(tempFile, settingsFile);
+};
+
+app.get('/api/settings', async (req, res) => {
   try {
-    const data = readSettings('settings');
-    res.json(data);
-  } catch (err) {
-    console.error('Failed to read settings.', err);
-    res.status(500).json({ error: 'Failed to read settings', detail: err?.message });
+    const settings = await loadSettings();
+    await persistSettings(settings);
+    res.json(settings);
+  } catch (error) {
+    console.error('Failed to load settings.', error);
+    res.status(500).json({ error: 'Failed to load settings', detail: error?.message });
   }
 });
 
-app.post('/api/settings', (req, res) => {
+app.post('/api/settings', async (req, res) => {
   try {
-    const newData = req.body;
-    if (!newData || typeof newData !== 'object') {
+    const incoming = req.body;
+    if (!incoming || typeof incoming !== 'object') {
       res.status(400).json({ error: 'Invalid payload' });
       return;
     }
-    saveSettings('settings', newData);
+    const normalized = normalizeSettings(incoming);
+    await persistSettings(normalized);
     res.json({ success: true });
-  } catch (err) {
-    console.error('Failed to save settings.', err);
-    res.status(500).json({ error: 'Failed to save settings', detail: err?.message });
+  } catch (error) {
+    console.error('Failed to save settings.', error);
+    res.status(500).json({ error: 'Failed to save settings', detail: error?.message });
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
-});
+ensureDataDir()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Failed to initialize settings storage.', error);
+    process.exit(1);
+  });
