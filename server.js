@@ -25,24 +25,32 @@ const DEFAULT_DATA = {
 
 fs.mkdirSync(dataDir, { recursive: true });
 const dbPath = process.env.DB_FILE || path.join(dataDir, 'settings.db');
-const db = new Database(dbPath);
+let db;
+let selectSettings;
+let upsertSettings;
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS settings (
-    key TEXT PRIMARY KEY,
-    data TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-  )
-`);
+try {
+  db = new Database(dbPath);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `);
 
-const selectSettings = db.prepare('SELECT data FROM settings WHERE key = ?');
-const upsertSettings = db.prepare(`
-  INSERT INTO settings (key, data, updated_at)
-  VALUES (?, ?, ?)
-  ON CONFLICT(key) DO UPDATE SET
-    data = excluded.data,
-    updated_at = excluded.updated_at
-`);
+  selectSettings = db.prepare('SELECT data FROM settings WHERE key = ?');
+  upsertSettings = db.prepare(`
+    INSERT INTO settings (key, data, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(key) DO UPDATE SET
+      data = excluded.data,
+      updated_at = excluded.updated_at
+  `);
+} catch (error) {
+  console.error('Failed to initialize settings database.', error);
+  process.exit(1);
+}
 
 const saveSettings = (key, data) => {
   const payload = JSON.stringify(data);
@@ -89,8 +97,8 @@ app.get('/api/settings', (req, res) => {
     const data = readSettings('settings');
     res.json(data);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to read settings' });
+    console.error('Failed to read settings.', err);
+    res.status(500).json({ error: 'Failed to read settings', detail: err?.message });
   }
 });
 
@@ -104,11 +112,11 @@ app.post('/api/settings', (req, res) => {
     saveSettings('settings', newData);
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to save settings' });
+    console.error('Failed to save settings.', err);
+    res.status(500).json({ error: 'Failed to save settings', detail: err?.message });
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
 });
