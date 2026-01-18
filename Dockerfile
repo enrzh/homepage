@@ -7,6 +7,10 @@ RUN npm install
 
 COPY . .
 
+RUN npm run build
+
+ENV PORT=3033
+
 EXPOSE 3033
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { promises as fs } from 'fs';
+import fs from 'fs';
+import { promises as fsp } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -43,7 +44,7 @@ const normalizeSettings = (payload) => {
 
 const readDatabase = async () => {
   try {
-    const raw = await fs.readFile(dbFile, 'utf8');
+    const raw = await fsp.readFile(dbFile, 'utf8');
     const parsed = JSON.parse(raw);
     return normalizeSettings(parsed);
   } catch (error) {
@@ -57,15 +58,15 @@ const readDatabase = async () => {
 const writeDatabase = async (settings) => {
   const payload = JSON.stringify(settings, null, 2);
   const tempFile = `${dbFile}.tmp`;
-  await fs.mkdir(path.dirname(dbFile), { recursive: true });
-  await fs.writeFile(tempFile, payload, 'utf8');
+  await fsp.mkdir(path.dirname(dbFile), { recursive: true });
+  await fsp.writeFile(tempFile, payload, 'utf8');
   try {
-    await fs.rename(tempFile, dbFile);
+    await fsp.rename(tempFile, dbFile);
   } catch (error) {
     if (error.code !== 'ENOENT') {
       throw error;
     }
-    await fs.writeFile(dbFile, payload, 'utf8');
+    await fsp.writeFile(dbFile, payload, 'utf8');
   }
 };
 
@@ -95,6 +96,17 @@ app.post('/api/settings', async (req, res) => {
     res.status(500).json({ error: 'Failed to save settings', detail: error?.message });
   }
 });
+
+const distPath = path.join(__dirname, 'dist');
+const distIndex = path.join(distPath, 'index.html');
+const hasClientBuild = fs.existsSync(distIndex);
+
+if (hasClientBuild) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(distIndex);
+  });
+}
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
