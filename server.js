@@ -9,7 +9,7 @@ const app = express();
 const PORT = Number(process.env.PORT || 3034);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dbFile = path.join(__dirname, 'data.db');
+const dbFile = process.env.DB_FILE ? path.resolve(process.env.DB_FILE) : path.join(process.cwd(), 'settings.db');
 let db;
 
 const DEFAULT_SETTINGS = {
