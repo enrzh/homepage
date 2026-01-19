@@ -57,6 +57,7 @@ const readDatabase = async () => {
   try {
     const raw = await fsp.readFile(dbFile, 'utf8');
     const parsed = JSON.parse(raw);
+    console.log(`[settings] Loaded settings from ${dbFile}`);
     return normalizeSettings(parsed);
   } catch (error) {
     if (error.code !== 'ENOENT') {
@@ -79,6 +80,7 @@ const writeDatabase = async (settings) => {
     }
     await fsp.writeFile(dbFile, payload, 'utf8');
   }
+  console.log(`[settings] Saved settings to ${dbFile}`);
 };
 
 app.get('/api/settings', async (req, res) => {
@@ -99,9 +101,11 @@ app.post('/api/settings', async (req, res) => {
       res.status(400).json({ error: 'Invalid payload' });
       return;
     }
+    console.log('[settings] Received settings update', incoming);
     const current = await readDatabase();
     const merged = mergeSettings(current, incoming);
     const normalized = normalizeSettings(merged);
+    console.log('[settings] Normalized settings update', normalized);
     await writeDatabase(normalized);
     res.json({ success: true });
   } catch (error) {
