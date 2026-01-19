@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -77,6 +77,7 @@ const App: React.FC = () => {
   const [serverError, setServerError] = useState(false);
   const [canSync, setCanSync] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
+  const saveQueueRef = useRef(Promise.resolve());
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isGlobalSettingsOpen, setIsGlobalSettingsOpen] = useState(false);
@@ -133,19 +134,17 @@ const App: React.FC = () => {
     fetchSettings();
   }, [fetchSettings]);
 
-  // Save Settings to Server (Debounced)
+  // Save Settings to Server (Immediate)
   useEffect(() => {
     if (!isLoaded) return; // Don't save before initial load
 
-    const saveData = async () => {
-        const payload = {
-            widgets,
-            appTitle,
-            showTitle,
-            enableSearchPreview,
-            lockWidgets
-        };
-
+    const saveData = async (payload: {
+        widgets: WidgetData[];
+        appTitle: string;
+        showTitle: boolean;
+        enableSearchPreview: boolean;
+        lockWidgets: boolean;
+    }) => {
         if (!API_URL || !canSync) return;
 
         try {
@@ -162,8 +161,15 @@ const App: React.FC = () => {
         }
     };
 
-    const timer = setTimeout(saveData, 1000); // Debounce for 1 second
-    return () => clearTimeout(timer);
+    const payload = {
+        widgets,
+        appTitle,
+        showTitle,
+        enableSearchPreview,
+        lockWidgets
+    };
+
+    saveQueueRef.current = saveQueueRef.current.then(() => saveData(payload));
   }, [widgets, appTitle, showTitle, enableSearchPreview, lockWidgets, isLoaded, canSync]);
 
   useEffect(() => {
