@@ -221,7 +221,7 @@ const App: React.FC = () => {
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
-            <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1500px] mx-auto pb-32 md:pb-10 gap-6 md:gap-10">
+            <div className="flex flex-col min-h-full w-full p-4 md:p-8 pb-32 md:pb-10 gap-6 md:gap-10">
                 
                 {/* Top Bar (Actions) - Made subtle */}
                 <div className="flex items-center justify-between gap-2 shrink-0">
