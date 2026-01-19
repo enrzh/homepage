@@ -121,6 +121,21 @@ if (hasClientBuild) {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Settings API listening on http://0.0.0.0:${PORT}`);
 });
+
+const shutdown = (signal) => {
+  console.log(`Received ${signal}. Closing server.`);
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.error('Force exiting after shutdown timeout.');
+    process.exit(1);
+  }, 10_000).unref();
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
