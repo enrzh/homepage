@@ -5,8 +5,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3033:3033"
+      - "3034:3034"
     environment:
-      PORT: "3033"
+      PORT: "3034"
       CHOKIDAR_USEPOLLING: "true"
     volumes:
       - .:/app
