@@ -27,7 +27,7 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
 ];
 
-const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['shortcuts', 'notes', 'quote']);
+const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['notes', 'quote']);
 
 const TINTS: { id: string; class: string; name: string }[] = [
     { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },
