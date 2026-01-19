@@ -13,4 +13,4 @@ ENV PORT=3033
 
 EXPOSE 3033
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run build && npm run start"]
