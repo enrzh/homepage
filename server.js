@@ -25,6 +25,23 @@ const DEFAULT_SETTINGS = {
   lockWidgets: false,
 };
 
+const initializeDatabase = () => {
+  db.pragma('journal_mode = WAL');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      payload TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+  const row = db.prepare('SELECT payload FROM settings WHERE id = 1').get();
+  if (!row) {
+    db.prepare('INSERT INTO settings (id, payload) VALUES (1, ?)').run(JSON.stringify(DEFAULT_SETTINGS));
+  }
+};
+
+initializeDatabase();
+
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
