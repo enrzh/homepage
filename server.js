@@ -10,7 +10,7 @@ const PORT = Number(process.env.PORT || 3034);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dbFile = path.join(__dirname, 'data.db');
-const db = new Database(dbFile);
+let db;
 
 const DEFAULT_SETTINGS = {
   widgets: [
@@ -61,6 +61,59 @@ const normalizeSettings = (payload) => {
     lockWidgets: typeof payload.lockWidgets === 'boolean' ? payload.lockWidgets : DEFAULT_SETTINGS.lockWidgets,
   };
 };
+
+const openDatabase = () => new Database(dbFile);
+
+const initializeDatabase = () => {
+  try {
+    db = openDatabase();
+    db.pragma('journal_mode = WAL');
+  } catch (error) {
+    if (error.code === 'SQLITE_NOTADB') {
+      let legacySettings = null;
+      try {
+        const raw = fs.readFileSync(dbFile, 'utf8');
+        legacySettings = JSON.parse(raw);
+      } catch (legacyError) {
+        console.warn('[settings] Failed to parse legacy JSON settings.', legacyError);
+      }
+      try {
+        const backupFile = `${dbFile}.json-backup-${Date.now()}`;
+        fs.renameSync(dbFile, backupFile);
+        console.warn(`[settings] Backed up legacy JSON database to ${backupFile}`);
+      } catch (renameError) {
+        console.error('[settings] Failed to backup legacy JSON database.', renameError);
+      }
+      db = openDatabase();
+      db.pragma('journal_mode = WAL');
+      const normalizedLegacy = normalizeSettings(legacySettings);
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS settings (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          payload TEXT NOT NULL,
+          updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+      `);
+      db.prepare('INSERT INTO settings (id, payload) VALUES (1, ?)').run(JSON.stringify(normalizedLegacy));
+      return;
+    }
+    throw error;
+  }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      payload TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+  const row = db.prepare('SELECT payload FROM settings WHERE id = 1').get();
+  if (!row) {
+    db.prepare('INSERT INTO settings (id, payload) VALUES (1, ?)').run(JSON.stringify(DEFAULT_SETTINGS));
+  }
+};
+
+initializeDatabase();
 
 const mergeSettings = (current, incoming) => ({
   widgets: Array.isArray(incoming.widgets) ? incoming.widgets : current.widgets,
