@@ -1,15 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
-import { promises as fsp } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Database from 'better-sqlite3';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3034);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dbFile = path.join(__dirname, 'data.db');
+const db = new Database(dbFile);
 
 const DEFAULT_SETTINGS = {
   widgets: [
@@ -23,6 +24,23 @@ const DEFAULT_SETTINGS = {
   enableSearchPreview: true,
   lockWidgets: false,
 };
+
+const initializeDatabase = () => {
+  db.pragma('journal_mode = WAL');
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      payload TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+  const row = db.prepare('SELECT payload FROM settings WHERE id = 1').get();
+  if (!row) {
+    db.prepare('INSERT INTO settings (id, payload) VALUES (1, ?)').run(JSON.stringify(DEFAULT_SETTINGS));
+  }
+};
+
+initializeDatabase();
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -55,32 +73,32 @@ const mergeSettings = (current, incoming) => ({
 
 const readDatabase = async () => {
   try {
-    const raw = await fsp.readFile(dbFile, 'utf8');
-    const parsed = JSON.parse(raw);
-    console.log(`[settings] Loaded settings from ${dbFile}`);
+    const row = db.prepare('SELECT payload FROM settings WHERE id = 1').get();
+    if (!row) {
+      console.warn('[settings] Missing settings row, returning defaults.');
+      return { ...DEFAULT_SETTINGS };
+    }
+    const parsed = JSON.parse(row.payload);
+    console.log(`[settings] Loaded settings from sqlite ${dbFile}`);
     return normalizeSettings(parsed);
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      console.error('Failed to read database, resetting to defaults.', error);
-    }
+    console.error('Failed to read database, resetting to defaults.', error);
     return { ...DEFAULT_SETTINGS };
   }
 };
 
 const writeDatabase = async (settings) => {
   const payload = JSON.stringify(settings, null, 2);
-  const tempFile = `${dbFile}.tmp`;
-  await fsp.mkdir(path.dirname(dbFile), { recursive: true });
-  await fsp.writeFile(tempFile, payload, 'utf8');
-  try {
-    await fsp.rename(tempFile, dbFile);
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-    await fsp.writeFile(dbFile, payload, 'utf8');
-  }
-  console.log(`[settings] Saved settings to ${dbFile}`);
+  db.prepare(
+    `
+      INSERT INTO settings (id, payload, updated_at)
+      VALUES (1, ?, datetime('now'))
+      ON CONFLICT(id) DO UPDATE SET
+        payload = excluded.payload,
+        updated_at = excluded.updated_at
+    `,
+  ).run(payload);
+  console.log(`[settings] Saved settings to sqlite ${dbFile}`);
 };
 
 app.get('/api/settings', async (req, res) => {
@@ -131,6 +149,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
 const shutdown = (signal) => {
   console.log(`Received ${signal}. Closing server.`);
+  db.close();
   server.close(() => {
     console.log('Server closed.');
     process.exit(0);
