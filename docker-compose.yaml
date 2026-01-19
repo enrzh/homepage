@@ -7,3 +7,8 @@ services:
       - "3033:3033"
     environment:
       PORT: "3033"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
