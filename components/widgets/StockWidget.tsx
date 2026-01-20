@@ -21,7 +21,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
     setError(null);
     try {
       const querySymbol = symbol.toUpperCase();
-      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${querySymbol}?interval=1m&range=1d`;
+      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${querySymbol}?interval=15m&range=1d`;
       const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
       
       const response = await fetch(proxyUrl);
