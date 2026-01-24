@@ -1,7 +1,7 @@
 {
   "name": "nexus-dashboard",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently -k -n server,client \"npm run server\" \"vite\"",
@@ -12,6 +12,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "react": "18.3.1",
