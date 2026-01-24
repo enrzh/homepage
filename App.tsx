@@ -24,9 +24,10 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '1', type: 'clock', title: 'Clock', config: { showDate: true, showSeconds: false, use24Hour: false, colSpan: 2 } },
   { id: '2', type: 'weather', title: 'Weather', config: { tint: 'blue' } },
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
+  { id: '4', type: 'shortcuts', title: 'Shortcuts', config: { tint: 'orange' } },
 ];
 
-const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['notes', 'quote']);
+const DISABLED_WIDGET_TYPES = new Set<WidgetType>([]);
 
 const TINTS: { id: string; class: string; name: string }[] = [
     { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },

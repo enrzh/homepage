@@ -4,12 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3033:3033"
       - "3034:3034"
     environment:
       PORT: "3034"
-      CHOKIDAR_USEPOLLING: "true"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run dev
+      NODE_ENV: production
+    restart: unless-stopped
