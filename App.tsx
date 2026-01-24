@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -67,7 +67,6 @@ const App: React.FC = () => {
   // State
   const [widgets, setWidgets] = useState<WidgetData[]>(DEFAULT_WIDGETS);
   const [widgetOrder, setWidgetOrder] = useState<string[]>(buildWidgetOrder(DEFAULT_WIDGETS));
-  const orderedWidgets = useMemo(() => reorderWidgets(widgets, widgetOrder), [widgets, widgetOrder]);
   const [appTitle, setAppTitle] = useState('Homepage');
   const [showTitle, setShowTitle] = useState(true);
   const [enableSearchPreview, setEnableSearchPreview] = useState(true);
@@ -135,47 +134,43 @@ const App: React.FC = () => {
     fetchSettings();
   }, [fetchSettings]);
 
-  const saveData = useCallback(async (payload: {
-    widgets: WidgetData[];
-    appTitle: string;
-    showTitle: boolean;
-    enableSearchPreview: boolean;
-    lockWidgets: boolean;
-  }) => {
-    if (!API_URL || !canSync) return;
-
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        setServerError(false);
-    } catch (err) {
-        console.error("Failed to save:", err);
-        setServerError(true);
-        setCanSync(false);
-    }
-  }, [canSync]);
-
-  // Save Settings to Server (Debounced)
+  // Save Settings to Server (Immediate)
   useEffect(() => {
     if (!isLoaded) return; // Don't save before initial load
 
-    const timer = setTimeout(() => {
-        const payload = {
-            widgets,
-            appTitle,
-            showTitle,
-            enableSearchPreview,
-            lockWidgets
-        };
+    const saveData = async (payload: {
+        widgets: WidgetData[];
+        appTitle: string;
+        showTitle: boolean;
+        enableSearchPreview: boolean;
+        lockWidgets: boolean;
+    }) => {
+        if (!API_URL || !canSync) return;
 
-        saveQueueRef.current = saveQueueRef.current.then(() => saveData(payload));
-    }, 500);
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            setServerError(false);
+        } catch (err) {
+            console.error("Failed to save:", err);
+            setServerError(true);
+            setCanSync(false);
+        }
+    };
 
-    return () => clearTimeout(timer);
-  }, [widgets, appTitle, showTitle, enableSearchPreview, lockWidgets, isLoaded, saveData]);
+    const payload = {
+        widgets,
+        appTitle,
+        showTitle,
+        enableSearchPreview,
+        lockWidgets
+    };
+
+    saveQueueRef.current = saveQueueRef.current.then(() => saveData(payload));
+  }, [widgets, appTitle, showTitle, enableSearchPreview, lockWidgets, isLoaded, canSync]);
 
   useEffect(() => {
     if (lockWidgets && editingWidgetId) {
@@ -283,11 +278,11 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
-                        {orderedWidgets.map((widget) => {
+                        {reorderWidgets(widgets, widgetOrder).map((widget) => {
                             const isBeingEdited = editingWidgetId === widget.id;
                             return (
                                 <Reorder.Item
@@ -305,10 +300,8 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? (
-                                            'col-span-1 sm:col-span-2'
-                                        ) : 'col-span-1'}
-                                        h-[180px] sm:h-[190px] md:h-[200px]
+                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
+                                        h-[160px] md:h-[190px]
                                     `}
                                     as="li"
                                 >

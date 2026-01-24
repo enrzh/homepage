@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Globe } from 'lucide-react';
 import { ShortcutLink, WidgetConfig } from '../../types';
 
@@ -14,27 +14,31 @@ const defaultShortcuts: ShortcutLink[] = [
 ];
 
 const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
+  const links = config.links;
+  const displayLinks = links && links.length > 0 ? links : defaultShortcuts;
+  const title = config.customTitle || 'Quick Links';
+
+  const getFavicon = (url: string) => {
+    try {
+      const domain = new URL(url).hostname;
+      return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    } catch {
+      return '';
+    }
+  };
+
+  const getHostname = (url: string) => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      return '';
+    }
+  };
+
   const isWide = config.colSpan === 2;
   const maxItems = isWide ? 8 : 4;
-
-  const displayLinks = useMemo(() => {
-    const links = config.links;
-    const baseLinks = links && links.length > 0 ? links : defaultShortcuts;
-    return baseLinks.slice(0, maxItems).map(link => {
-      let hostname = '';
-      let favicon = '';
-      try {
-        const urlObj = new URL(link.url);
-        hostname = urlObj.hostname.replace(/^www\./, '');
-        favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
-      } catch {
-        // Fallback for invalid URLs
-      }
-      return { ...link, hostname, favicon };
-    });
-  }, [config.links, maxItems]);
-
-  const title = config.customTitle || 'Quick Links';
+  const visibleCount = Math.min(displayLinks.length, maxItems);
+  const columnCount = Math.max(1, Math.min(visibleCount, maxItems));
 
   return (
     <div className="h-full flex flex-col p-4 text-white gap-4">
@@ -42,30 +46,30 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
         <h3 className="text-[11px] font-semibold text-white/50 uppercase tracking-[0.2em]">
           {title}
         </h3>
-        <span className="text-[10px] text-white/30 font-medium">{displayLinks.length}</span>
+        <span className="text-[10px] text-white/30 font-medium">{visibleCount}</span>
       </div>
       <div
-        className={`grid gap-2 md:gap-3 flex-1 items-stretch ${
-          isWide
-            ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4'
-            : 'grid-cols-1 sm:grid-cols-2'
-        }`}
+        className="grid gap-2 md:gap-3 flex-1 items-stretch"
+        style={{
+          gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+          gridAutoRows: 'minmax(0, 1fr)',
+        }}
       >
-        {displayLinks.map((sc) => (
+        {displayLinks.slice(0, maxItems).map((sc) => (
           <a
             key={sc.id}
             href={sc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex h-full items-center gap-3 rounded-md border border-white/5 bg-white/0 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-white/5 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 shadow-sm"
+            className="group flex h-full items-center gap-2 rounded-md border border-white/5 bg-white/0 px-3 py-2 text-left transition-all hover:border-white/20 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             title={sc.title}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <div className="w-8 h-8 rounded-md bg-white/5 p-1.5 flex items-center justify-center overflow-hidden shrink-0 transition-transform group-hover:scale-110">
+            <div className="w-7 h-7 rounded-md bg-white/5 p-1 flex items-center justify-center overflow-hidden shrink-0">
               <img
-                src={sc.favicon}
+                src={getFavicon(sc.url)}
                 alt={sc.title}
-                className="w-full h-full object-contain"
+                className="w-4 h-4 object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                   (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
@@ -74,11 +78,11 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
               <Globe className="w-4 h-4 text-white/40 hidden" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-white/90 truncate">
+              <div className="text-[11px] font-semibold text-white/90 truncate">
                 {sc.title}
               </div>
               <div className="text-[10px] text-white/30 truncate">
-                {sc.hostname}
+                {getHostname(sc.url)}
               </div>
             </div>
             <span className="text-[10px] text-white/20 group-hover:text-white/50 transition-colors">↗</span>
@@ -89,4 +93,4 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   );
 };
 
-export default React.memo(ShortcutsWidget);
+export default ShortcutsWidget;

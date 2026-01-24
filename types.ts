@@ -60,3 +60,9 @@ export interface WeatherData {
   isDay: boolean;
 }
 
+export interface Shortcut {
+  id: string;
+  title: string;
+  url: string;
+  icon?: string;
+}

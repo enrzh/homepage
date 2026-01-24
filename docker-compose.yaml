@@ -4,8 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3034:3034"
+      - "3033:3033"
     environment:
-      PORT: "3034"
-      NODE_ENV: production
-    restart: unless-stopped
+      PORT: "3033"
