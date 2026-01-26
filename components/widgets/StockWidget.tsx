@@ -9,6 +9,7 @@ interface StockWidgetProps {
 
 const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   const symbol = config.symbol || 'SPY';
+  const refreshIntervalMs = 60_000;
   const [data, setData] = useState<StockData[]>([]);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [previousClose, setPreviousClose] = useState<number | null>(null);
@@ -20,7 +21,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
     setError(null);
     try {
       const querySymbol = symbol.toUpperCase();
-      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${querySymbol}?interval=5m&range=1d`;
+      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${querySymbol}?interval=15m&range=1d`;
       const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
       
       const response = await fetch(proxyUrl);
@@ -68,9 +69,9 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 60000); 
+    const interval = setInterval(fetchData, refreshIntervalMs); 
     return () => clearInterval(interval);
-  }, [symbol]);
+  }, [symbol, refreshIntervalMs]);
 
   const isPositive = currentPrice && previousClose ? currentPrice >= previousClose : true;
   const percentChange = currentPrice && previousClose 
