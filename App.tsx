@@ -6,8 +6,6 @@ import WeatherWidget from './components/widgets/WeatherWidget';
 import StockWidget from './components/widgets/StockWidget';
 import ClockWidget from './components/widgets/ClockWidget';
 import ShortcutsWidget from './components/widgets/ShortcutsWidget';
-import NotesWidget from './components/widgets/NotesWidget';
-import QuoteWidget from './components/widgets/QuoteWidget';
 import SettingsModal from './components/SettingsModal';
 import GlobalSettingsModal from './components/GlobalSettingsModal';
 import ToggleSwitch from './components/ToggleSwitch';
@@ -26,14 +24,12 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
 ];
 
-const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['notes', 'quote']);
-
 const TINTS: { id: string; class: string; name: string }[] = [
-    { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },
-    { id: 'blue', class: 'bg-slate-900/70', name: 'Steel' },
-    { id: 'purple', class: 'bg-slate-800/70', name: 'Graphite' },
-    { id: 'green', class: 'bg-slate-900/60', name: 'Charcoal' },
-    { id: 'orange', class: 'bg-slate-800/60', name: 'Smoke' },
+    { id: 'default', class: 'bg-white/10', name: 'Glass' },
+    { id: 'blue', class: 'bg-blue-500/10', name: 'Ocean' },
+    { id: 'purple', class: 'bg-purple-500/10', name: 'Galaxy' },
+    { id: 'green', class: 'bg-emerald-500/10', name: 'Nature' },
+    { id: 'orange', class: 'bg-orange-500/10', name: 'Sunset' },
 ];
 
 const ensureWidgetConfig = (widget: WidgetData): WidgetData => ({
@@ -57,8 +53,6 @@ const renderWidgetContent = (widget: WidgetData) => {
       case 'weather': return <WeatherWidget config={widget.config} />;
       case 'stocks': return <StockWidget config={widget.config} />;
       case 'shortcuts': return <ShortcutsWidget config={widget.config} />;
-      case 'notes': return <NotesWidget config={widget.config} />;
-      case 'quote': return <QuoteWidget config={widget.config} />;
       default: return null;
     }
 };
@@ -93,8 +87,7 @@ const App: React.FC = () => {
     lockWidgets: boolean;
   }>) => {
     const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS)
-      .map(ensureWidgetConfig)
-      .filter((widget) => !DISABLED_WIDGET_TYPES.has(widget.type));
+      .map(ensureWidgetConfig);
     setWidgets(nextWidgets);
     setWidgetOrder(buildWidgetOrder(nextWidgets));
     setAppTitle(data.appTitle ?? 'Homepage');
@@ -191,8 +184,6 @@ const App: React.FC = () => {
 
 
   const addWidget = (type: WidgetType) => {
-    if (DISABLED_WIDGET_TYPES.has(type)) return;
-
     const newWidget: WidgetData = {
       id: uuidv4(),
       type,
@@ -201,10 +192,6 @@ const App: React.FC = () => {
         ? { symbol: 'AAPL' }
         : type === 'clock'
           ? { showDate: true, colSpan: 2 }
-          : type === 'notes'
-            ? { notes: ['Capture a thought', 'Add a quick reminder'] }
-            : type === 'quote'
-              ? { quoteGenre: 'inspirational' }
           : {},
     };
     setWidgets((prev) => [...prev, newWidget]);
@@ -222,7 +209,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#0f1217] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-slate-400/20">
+    <div className="h-[100dvh] w-full bg-[#0a0c10] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-slate-400/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
@@ -230,32 +218,32 @@ const App: React.FC = () => {
                 
                 {/* Top Bar (Actions) - Made subtle */}
                 <div className="flex items-center justify-between gap-2 shrink-0">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                         <button 
                             onClick={() => setIsGlobalSettingsOpen(true)}
-                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-lg text-white/40 hover:text-white transition-all active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-sm"
                             title="Settings"
                         >
-                            <Settings className="w-6 h-6 md:w-5 md:h-5" />
+                            <Settings className="w-5 h-5" />
                         </button>
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/15 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-lg text-white/70 hover:text-white transition-all active:scale-95 bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm"
                             title="Add Widget"
                         >
-                            <span className="text-2xl leading-none">+</span>
+                            <Plus className="w-6 h-6" />
                         </button>
                     </div>
                 </div>
 
                 {/* Header (Title) */}
                 {showTitle && (
-                    <div className="w-full flex justify-center mt-2 md:mt-6 shrink-0">
+                    <div className="w-full flex justify-center mt-4 md:mt-8 shrink-0">
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-6xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-3xl hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3"
-                            placeholder="Dashboard Name"
+                            className="text-5xl md:text-7xl font-bold bg-transparent text-center outline-none text-white/90 placeholder-white/10 tracking-tighter w-full max-w-4xl hover:text-white focus:text-white transition-all px-4 md:px-6 py-2"
+                            placeholder="Dashboard"
                         />
                     </div>
                 )}
@@ -283,7 +271,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -305,10 +293,8 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? (
-                                            'col-span-1 sm:col-span-2'
-                                        ) : 'col-span-1'}
-                                        h-[180px] sm:h-[190px] md:h-[200px]
+                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
+                                        h-[160px] md:h-[180px]
                                     `}
                                     as="li"
                                 >
@@ -402,11 +388,11 @@ const WidgetCard: React.FC<{
                 }
             }}
             className={`
-                w-full h-full relative overflow-hidden border border-white/10 hover:border-white/20 transition-all shadow-[0_18px_45px_-35px_rgba(0,0,0,0.85)] hover:shadow-[0_28px_70px_-35px_rgba(0,0,0,0.9)] hover:-translate-y-0.5 group rounded-lg
+                w-full h-full relative overflow-hidden border border-white/20 hover:border-white/40 transition-all backdrop-blur-md shadow-2xl group rounded-xl
                 ${bgClass}
             `}
         >
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/[0.03]" />
             {!isLocked && (
                 <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                      <button 
@@ -472,7 +458,6 @@ const EditConfigPanel: React.FC<{
     // Local state to prevent typing blocking and allow "Live Preview" without committing to App state immediately
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
-    const [notesText, setNotesText] = useState((widget.config.notes || []).join('\n'));
     // Direct update wrapper for toggles/selectors
     const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
         const newConfig = { ...localConfig, ...updates };
@@ -489,15 +474,6 @@ const EditConfigPanel: React.FC<{
         }, 500);
         return () => clearTimeout(timer);
     }, [localTitle]);
-
-    useEffect(() => {
-        if (widget.type !== 'notes') return;
-        const formattedNotes = notesText
-            .split('\n')
-            .map(line => line.trim())
-            .filter(Boolean);
-        updateConfigImmediate({ notes: formattedNotes });
-    }, [notesText]);
 
     // Construct a temporary widget object for the Live Preview
     const previewWidget: WidgetData = {
@@ -634,45 +610,6 @@ const EditConfigPanel: React.FC<{
                                 config={localConfig}
                                 onUpdate={updateConfigImmediate}
                             />
-                        )}
-
-                        {widget.type === 'notes' && (
-                            <div className="space-y-2">
-                                <label className="text-sm text-white/60">Notes</label>
-                                <textarea
-                                    value={notesText}
-                                    onChange={(e) => setNotesText(e.target.value)}
-                                    placeholder="Write one note per line"
-                                    rows={6}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all resize-none"
-                                />
-                                <p className="text-[10px] text-white/40">Each line becomes a bullet point.</p>
-                            </div>
-                        )}
-
-                        {widget.type === 'quote' && (
-                            <div className="space-y-3">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm text-white/60">Genre</label>
-                                    <select
-                                        value={localConfig.quoteGenre || 'inspirational'}
-                                        onChange={(e) => updateConfigImmediate({ quoteGenre: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all"
-                                    >
-                                        <option value="inspirational">Inspirational</option>
-                                        <option value="motivational">Motivational</option>
-                                        <option value="wisdom">Wisdom</option>
-                                        <option value="success">Success</option>
-                                        <option value="happiness">Happiness</option>
-                                        <option value="famous-quotes">Famous</option>
-                                        <option value="technology">Technology</option>
-                                        <option value="life">Life</option>
-                                        <option value="friendship">Friendship</option>
-                                        <option value="any">Any</option>
-                                    </select>
-                                    <p className="text-[10px] text-white/40">Quotes update automatically from the web.</p>
-                                </div>
-                            </div>
                         )}
                     </div>
                 </div>

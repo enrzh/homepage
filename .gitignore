@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Database
+settings.db
+settings.db-shm
+settings.db-wal
