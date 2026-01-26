@@ -124,7 +124,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
         </div>
       
         {/* Chart */}
-        <div className="flex-1 min-h-[80px] md:min-h-[100px] -mx-2 -mb-2 rounded-lg border border-white/5 bg-black/20 p-2">
+        <div className="flex-1 min-h-[80px] md:min-h-[100px] -mx-2 -mb-2 rounded-xl border border-white/5 bg-white/5 p-2 backdrop-blur-sm">
             {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
@@ -152,10 +152,10 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                     <Area 
                         type="linear" 
                         dataKey="delta" 
-                        stroke={isPositive ? "#94a3b8" : "#fca5a5"} 
+                        stroke={isPositive ? "#10b981" : "#f43f5e"}
                         fillOpacity={1} 
                         fill={`url(#colorValue-${symbol})`}
-                        strokeWidth={2.5}
+                        strokeWidth={2}
                         isAnimationActive={true}
                         animationDuration={1000}
                         dot={false}
