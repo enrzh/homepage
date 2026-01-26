@@ -83,8 +83,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
       <div className="relative group">
         {/* Input Container */}
         <div className={`
-          relative flex items-center bg-slate-950/80 border border-white/30 transition-all duration-300
-          shadow-[0_0_0_1px_rgba(255,255,255,0.25),0_18px_45px_-35px_rgba(0,0,0,0.9),0_0_24px_rgba(255,255,255,0.12)]
+          relative flex items-center bg-white/5 backdrop-blur-xl border border-white/10 transition-all duration-300
+          shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
           
           /* Default (Mobile/Bottom) Shape */
           rounded-lg
