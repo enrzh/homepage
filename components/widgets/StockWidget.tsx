@@ -108,7 +108,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                         <span className="flex h-1.5 w-1.5 rounded-full bg-slate-300/80 animate-pulse" title="Live" />
                     )}
                 </div>
-                <div className="text-xl md:text-2xl font-semibold flex items-center gap-2 tracking-tight">
+                <div className="text-3xl font-black flex items-center gap-2 tracking-tighter">
                     {currentPrice ? `$${currentPrice.toFixed(2)}` : '---'}
                 </div>
             </div>
@@ -130,8 +130,8 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                 <AreaChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id={`colorValue-${symbol}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={isPositive ? "#94a3b8" : "#fca5a5"} stopOpacity={0.28}/>
-                            <stop offset="95%" stopColor={isPositive ? "#94a3b8" : "#fca5a5"} stopOpacity={0.05}/>
+                            <stop offset="5%" stopColor={isPositive ? "#475569" : "#fca5a5"} stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor={isPositive ? "#475569" : "#fca5a5"} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />

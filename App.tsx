@@ -6,8 +6,6 @@ import WeatherWidget from './components/widgets/WeatherWidget';
 import StockWidget from './components/widgets/StockWidget';
 import ClockWidget from './components/widgets/ClockWidget';
 import ShortcutsWidget from './components/widgets/ShortcutsWidget';
-import NotesWidget from './components/widgets/NotesWidget';
-import QuoteWidget from './components/widgets/QuoteWidget';
 import SettingsModal from './components/SettingsModal';
 import GlobalSettingsModal from './components/GlobalSettingsModal';
 import ToggleSwitch from './components/ToggleSwitch';
@@ -25,8 +23,6 @@ const DEFAULT_WIDGETS: WidgetData[] = [
   { id: '2', type: 'weather', title: 'Weather', config: { tint: 'blue' } },
   { id: '3', type: 'stocks', title: 'SPY', config: { symbol: 'SPY', tint: 'green' } },
 ];
-
-const DISABLED_WIDGET_TYPES = new Set<WidgetType>(['notes', 'quote']);
 
 const TINTS: { id: string; class: string; name: string }[] = [
     { id: 'default', class: 'bg-slate-900/80', name: 'Slate' },
@@ -57,8 +53,6 @@ const renderWidgetContent = (widget: WidgetData) => {
       case 'weather': return <WeatherWidget config={widget.config} />;
       case 'stocks': return <StockWidget config={widget.config} />;
       case 'shortcuts': return <ShortcutsWidget config={widget.config} />;
-      case 'notes': return <NotesWidget config={widget.config} />;
-      case 'quote': return <QuoteWidget config={widget.config} />;
       default: return null;
     }
 };
@@ -93,8 +87,7 @@ const App: React.FC = () => {
     lockWidgets: boolean;
   }>) => {
     const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS)
-      .map(ensureWidgetConfig)
-      .filter((widget) => !DISABLED_WIDGET_TYPES.has(widget.type));
+      .map(ensureWidgetConfig);
     setWidgets(nextWidgets);
     setWidgetOrder(buildWidgetOrder(nextWidgets));
     setAppTitle(data.appTitle ?? 'Homepage');
@@ -191,8 +184,6 @@ const App: React.FC = () => {
 
 
   const addWidget = (type: WidgetType) => {
-    if (DISABLED_WIDGET_TYPES.has(type)) return;
-
     const newWidget: WidgetData = {
       id: uuidv4(),
       type,
@@ -201,10 +192,6 @@ const App: React.FC = () => {
         ? { symbol: 'AAPL' }
         : type === 'clock'
           ? { showDate: true, colSpan: 2 }
-          : type === 'notes'
-            ? { notes: ['Capture a thought', 'Add a quick reminder'] }
-            : type === 'quote'
-              ? { quoteGenre: 'inspirational' }
           : {},
     };
     setWidgets((prev) => [...prev, newWidget]);
@@ -283,7 +270,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -305,9 +292,7 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? (
-                                            'col-span-1 sm:col-span-2'
-                                        ) : 'col-span-1'}
+                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
                                         h-[180px] sm:h-[190px] md:h-[200px]
                                     `}
                                     as="li"
@@ -402,7 +387,9 @@ const WidgetCard: React.FC<{
                 }
             }}
             className={`
-                w-full h-full relative overflow-hidden border border-white/10 hover:border-white/20 transition-all shadow-[0_18px_45px_-35px_rgba(0,0,0,0.85)] hover:shadow-[0_28px_70px_-35px_rgba(0,0,0,0.9)] hover:-translate-y-0.5 group rounded-lg
+                w-full h-full relative overflow-hidden border border-white/5 hover:border-white/20 transition-all
+                backdrop-blur-md bg-white/5 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]
+                hover:-translate-y-0.5 group rounded-lg
                 ${bgClass}
             `}
         >
@@ -446,7 +433,7 @@ const EditWidgetModal: React.FC<{
         <>
             <div
                 onClick={onClose}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                className="fixed inset-0 bg-black/40 backdrop-blur-xl z-40"
             />
             {/* Removed p-4 on mobile to allow full screen take-over */}
             <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none md:p-4">
@@ -472,7 +459,6 @@ const EditConfigPanel: React.FC<{
     // Local state to prevent typing blocking and allow "Live Preview" without committing to App state immediately
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
-    const [notesText, setNotesText] = useState((widget.config.notes || []).join('\n'));
     // Direct update wrapper for toggles/selectors
     const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
         const newConfig = { ...localConfig, ...updates };
@@ -490,15 +476,6 @@ const EditConfigPanel: React.FC<{
         return () => clearTimeout(timer);
     }, [localTitle]);
 
-    useEffect(() => {
-        if (widget.type !== 'notes') return;
-        const formattedNotes = notesText
-            .split('\n')
-            .map(line => line.trim())
-            .filter(Boolean);
-        updateConfigImmediate({ notes: formattedNotes });
-    }, [notesText]);
-
     // Construct a temporary widget object for the Live Preview
     const previewWidget: WidgetData = {
         ...widget,
@@ -511,19 +488,19 @@ const EditConfigPanel: React.FC<{
         <div
             className={`
                 pointer-events-auto
-                w-full max-w-4xl 
-                h-full md:h-[600px] md:max-h-[85vh]
+                w-full max-w-5xl
+                h-full md:h-[650px] md:max-h-[90vh]
                 flex flex-col md:flex-row
-                md:rounded-lg border-0 md:border border-white/20 shadow-2xl overflow-hidden
-                bg-[#0a0a0a]
+                md:rounded-xl border-0 md:border border-white/10 shadow-2xl overflow-hidden
+                bg-[#0a0a0a]/90 backdrop-blur-2xl
             `}
         >
             {/* Left/Top: Preview Area */}
             <div className={`
-                relative shrink-0 md:flex-1 p-6 md:p-8 flex flex-col items-center justify-center
+                relative shrink-0 md:flex-1 p-8 md:p-12 flex flex-col items-center justify-center
                 ${tintConfig.class}
-                border-b md:border-b-0 md:border-r border-white/10
-                min-h-[220px] md:min-h-[300px]
+                border-b md:border-b-0 md:border-r border-white/5
+                min-h-[260px] md:min-h-[300px]
             `}>
                 <div className="absolute top-4 left-4 text-xs font-bold text-white/30 uppercase tracking-widest hidden md:block">Live Preview</div>
                 <div className="absolute top-4 right-4 md:hidden z-50">
@@ -545,9 +522,9 @@ const EditConfigPanel: React.FC<{
             {/* Right/Bottom: Settings Panel */}
             <div className="flex-1 flex flex-col bg-[#111] min-w-0 md:min-w-[320px] overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 md:py-5 border-b border-white/10 bg-white/[0.02] shrink-0">
+                <div className="flex items-center justify-between px-8 py-5 md:py-6 border-b border-white/5 bg-white/[0.01] shrink-0">
                     <div className="flex flex-col w-full mr-4">
-                        <span className="text-[10px] uppercase tracking-wider text-white/40 font-bold mb-1">
+                        <span className="text-[10px] uppercase tracking-wider text-white/30 font-bold mb-1">
                             Editing {widget.type}
                         </span>
                         <input 
@@ -568,10 +545,10 @@ const EditConfigPanel: React.FC<{
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-6 pb-20 md:pb-6">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-8 pb-24 md:pb-8">
                     {/* Appearance Size */}
-                    <div className="space-y-3">
-                         <label className="text-xs font-bold text-white/40 uppercase tracking-widest">Layout</label>
+                    <div className="space-y-4">
+                         <label className="text-xs font-bold text-white/30 uppercase tracking-widest">Layout</label>
                          <div className="grid grid-cols-2 gap-3">
                             <button 
                                 onClick={() => updateConfigImmediate({ colSpan: 1 })}
@@ -634,45 +611,6 @@ const EditConfigPanel: React.FC<{
                                 config={localConfig}
                                 onUpdate={updateConfigImmediate}
                             />
-                        )}
-
-                        {widget.type === 'notes' && (
-                            <div className="space-y-2">
-                                <label className="text-sm text-white/60">Notes</label>
-                                <textarea
-                                    value={notesText}
-                                    onChange={(e) => setNotesText(e.target.value)}
-                                    placeholder="Write one note per line"
-                                    rows={6}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all resize-none"
-                                />
-                                <p className="text-[10px] text-white/40">Each line becomes a bullet point.</p>
-                            </div>
-                        )}
-
-                        {widget.type === 'quote' && (
-                            <div className="space-y-3">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-sm text-white/60">Genre</label>
-                                    <select
-                                        value={localConfig.quoteGenre || 'inspirational'}
-                                        onChange={(e) => updateConfigImmediate({ quoteGenre: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-300/60 transition-all"
-                                    >
-                                        <option value="inspirational">Inspirational</option>
-                                        <option value="motivational">Motivational</option>
-                                        <option value="wisdom">Wisdom</option>
-                                        <option value="success">Success</option>
-                                        <option value="happiness">Happiness</option>
-                                        <option value="famous-quotes">Famous</option>
-                                        <option value="technology">Technology</option>
-                                        <option value="life">Life</option>
-                                        <option value="friendship">Friendship</option>
-                                        <option value="any">Any</option>
-                                    </select>
-                                    <p className="text-[10px] text-white/40">Quotes update automatically from the web.</p>
-                                </div>
-                            </div>
                         )}
                     </div>
                 </div>

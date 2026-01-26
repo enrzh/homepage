@@ -48,7 +48,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config }) => {
 
   const getIcon = () => {
     const { condition, isDay } = weather;
-    const size = "w-8 h-8 md:w-10 md:h-10";
+    const size = "w-16 h-16";
     if (condition === 'Clear') return isDay ? <Sun className={`${size} text-slate-200`} /> : <Moon className={`${size} text-slate-300`} />;
     if (condition === 'Rain') return <CloudRain className={`${size} text-slate-300`} />;
     if (condition === 'Snow') return <CloudSnow className={`${size} text-white`} />;
@@ -64,11 +64,11 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ config }) => {
         </div>
       )}
       
-      <div className="flex items-center gap-3 md:gap-4">
+      <div className="flex flex-col items-center gap-2">
         {getIcon()}
-        <div>
-          <div className="text-3xl md:text-4xl font-bold">{Math.round(weather.temperature)}°</div>
-          <div className="text-xs md:text-sm text-white/60 flex items-center gap-1">
+        <div className="text-center">
+          <div className="text-5xl font-black tracking-tighter">{Math.round(weather.temperature)}°</div>
+          <div className="text-xs text-white/60 flex items-center justify-center gap-1">
              {config.city && <MapPin className="w-3 h-3" />}
              {weather.condition}
           </div>

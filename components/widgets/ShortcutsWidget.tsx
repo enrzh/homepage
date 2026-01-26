@@ -45,11 +45,7 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
         <span className="text-[10px] text-white/30 font-medium">{displayLinks.length}</span>
       </div>
       <div
-        className={`grid gap-2 md:gap-3 flex-1 items-stretch ${
-          isWide
-            ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4'
-            : 'grid-cols-1 sm:grid-cols-2'
-        }`}
+        className={`grid grid-cols-2 gap-2 md:gap-3 flex-1 items-stretch`}
       >
         {displayLinks.map((sc) => (
           <a
