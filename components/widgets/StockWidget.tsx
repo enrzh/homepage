@@ -95,12 +95,12 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   }
 
   return (
-    <div className="h-full flex flex-col p-4 text-white relative overflow-hidden group">
+    <div className="h-full flex flex-col p-3 md:p-4 text-white relative overflow-hidden group">
         {/* Header */}
-        <div className="flex justify-between items-start mb-2 relative z-10">
-            <div>
+        <div className="flex justify-between items-start mb-1 md:mb-2 relative z-10 gap-1 md:gap-2">
+            <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <h3 className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-wider truncate max-w-[80px] md:max-w-none">
+                    <h3 className="text-[10px] md:text-xs font-bold text-white/50 uppercase tracking-wider truncate">
                         {config.customTitle || symbol}
                     </h3>
                     {loading && <RefreshCw className="w-3 h-3 animate-spin text-white/20" />}
@@ -108,11 +108,11 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                         <span className="flex h-1.5 w-1.5 rounded-full bg-slate-300/80 animate-pulse" title="Live" />
                     )}
                 </div>
-                <div className="text-3xl font-black flex items-center gap-2 tracking-tighter">
+                <div className="text-xl md:text-3xl font-black flex items-center gap-2 tracking-tighter truncate overflow-hidden">
                     {currentPrice ? `$${currentPrice.toFixed(2)}` : '---'}
                 </div>
             </div>
-            <div className={`text-right flex flex-col items-end ${isPositive ? 'text-emerald-300' : 'text-rose-300'}`}>
+            <div className={`text-right flex flex-col items-end shrink-0 ${isPositive ? 'text-emerald-300' : 'text-rose-300'}`}>
                 <div className="text-xs md:text-sm font-medium flex items-center gap-1">
                     {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {Math.abs(percentChange).toFixed(2)}%

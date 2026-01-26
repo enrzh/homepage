@@ -141,7 +141,6 @@ const writeDatabase = async (settings) => {
 app.get('/api/settings', async (req, res) => {
   try {
     const settings = await readDatabase();
-    await writeDatabase(settings);
     res.json(settings);
   } catch (error) {
     console.error('Failed to load settings.', error);
