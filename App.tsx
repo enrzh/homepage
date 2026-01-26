@@ -59,8 +59,8 @@ const renderWidgetContent = (widget: WidgetData) => {
 
 const App: React.FC = () => {
   // State
-  const [widgets, setWidgets] = useState<WidgetData[]>(DEFAULT_WIDGETS);
-  const [widgetOrder, setWidgetOrder] = useState<string[]>(buildWidgetOrder(DEFAULT_WIDGETS));
+  const [widgets, setWidgets] = useState<WidgetData[]>([]);
+  const [widgetOrder, setWidgetOrder] = useState<string[]>([]);
   const orderedWidgets = useMemo(() => reorderWidgets(widgets, widgetOrder), [widgets, widgetOrder]);
   const [appTitle, setAppTitle] = useState('Homepage');
   const [showTitle, setShowTitle] = useState(true);
@@ -255,7 +255,7 @@ const App: React.FC = () => {
                 {/* Widgets Grid */}
                 <div className="w-full">
                     {/* Loading State */}
-                    {!isLoaded && widgets.length === 0 && (
+                    {!isLoaded && (
                          <div className="w-full h-64 flex items-center justify-center text-white/20 animate-pulse">
                             Loading Dashboard...
                         </div>
