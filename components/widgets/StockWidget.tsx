@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AreaChart, Area, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
 import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { StockData, WidgetConfig } from '../../types';
@@ -7,8 +7,41 @@ interface StockWidgetProps {
   config: WidgetConfig;
 }
 
+const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
+  const container = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!container.current) return;
+
+    container.current.innerHTML = "";
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "symbol": symbol,
+      "width": "100%",
+      "height": "100%",
+      "locale": "en",
+      "dateRange": "12M",
+      "colorTheme": "dark",
+      "isTransparent": true,
+      "autosize": true,
+      "largeChartUrl": ""
+    });
+    container.current.appendChild(script);
+  }, [symbol]);
+
+  return (
+    <div className="w-full h-full p-1 bg-black/20 rounded-lg overflow-hidden">
+      <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }} />
+    </div>
+  );
+};
+
 const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   const symbol = config.symbol || 'SPY';
+  const dataSource = config.dataSource || 'yahoo';
   const refreshIntervalMs = 60_000;
   const [data, setData] = useState<StockData[]>([]);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
@@ -17,12 +50,12 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
+    if (dataSource === 'tradingview') return;
     setLoading(true);
     setError(null);
     try {
       const querySymbol = symbol.toUpperCase();
-      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${querySymbol}?interval=15m&range=1d`;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      const proxyUrl = `/api/stock-proxy?symbol=${querySymbol}`;
       
       const response = await fetch(proxyUrl);
       if (!response.ok) throw new Error('Network response was not ok');
@@ -78,6 +111,10 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
     ? ((currentPrice - previousClose) / previousClose * 100) 
     : 0;
   const priceChange = currentPrice && previousClose ? currentPrice - previousClose : 0;
+
+  if (dataSource === 'tradingview') {
+    return <TradingViewWidget symbol={symbol} />;
+  }
 
   if (error) {
     return (

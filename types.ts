@@ -15,6 +15,7 @@ export interface WidgetConfig {
 
   // Stocks
   symbol?: string; 
+  dataSource?: 'yahoo' | 'tradingview';
   
   // Weather
   city?: string;
