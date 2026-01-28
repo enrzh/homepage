@@ -25,7 +25,7 @@ const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
       "locale": "en",
       "dateRange": "12M",
       "colorTheme": "dark",
-      "isTransparent": true,
+      "isTransparent": false,
       "autosize": true,
       "largeChartUrl": ""
     });
@@ -167,8 +167,8 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                 <AreaChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id={`colorValue-${symbol}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={isPositive ? "#475569" : "#fca5a5"} stopOpacity={0.4}/>
-                            <stop offset="95%" stopColor={isPositive ? "#475569" : "#fca5a5"} stopOpacity={0.05}/>
+                            <stop offset="5%" stopColor={isPositive ? "#1e3a8a" : "#7f1d1d"} stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor={isPositive ? "#1e3a8a" : "#7f1d1d"} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -189,7 +189,7 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                     <Area 
                         type="linear" 
                         dataKey="delta" 
-                        stroke={isPositive ? "#94a3b8" : "#fca5a5"} 
+                        stroke={isPositive ? "#3b82f6" : "#ef4444"}
                         fillOpacity={1} 
                         fill={`url(#colorValue-${symbol})`}
                         strokeWidth={2.5}
