@@ -701,7 +701,32 @@ const StockSettings: React.FC<{
     }, [symbolInput, config.symbol, onUpdate]);
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-6">
+            <div className="space-y-3">
+                <label className="text-xs font-bold text-white/30 uppercase tracking-widest">Data Source</label>
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        onClick={() => onUpdate({ dataSource: 'yahoo' })}
+                        className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
+                        ${(!config.dataSource || config.dataSource === 'yahoo') ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
+                    >
+                        <span className="text-sm">Custom Chart</span>
+                    </button>
+                    <button
+                        onClick={() => onUpdate({ dataSource: 'tradingview' })}
+                        className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
+                        ${config.dataSource === 'tradingview' ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
+                    >
+                        <span className="text-sm">TradingView</span>
+                    </button>
+                </div>
+                <p className="text-[10px] text-white/40">
+                    {config.dataSource === 'tradingview'
+                        ? 'Uses TradingView interactive iframe (more reliable)'
+                        : 'Uses custom glassmorphic chart (Yahoo Finance data)'}
+                </p>
+            </div>
+
              <div className="flex flex-col gap-2">
                 <label className="text-sm text-white/60">Stock Symbol</label>
                  <div className="relative">

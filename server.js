@@ -138,6 +138,32 @@ const writeDatabase = async (settings) => {
   console.log(`[settings] Saved settings to sqlite ${dbFile}`);
 };
 
+app.get('/api/stock-proxy', async (req, res) => {
+  const { symbol } = req.query;
+  if (!symbol) return res.status(400).json({ error: 'Symbol is required' });
+
+  try {
+    const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?interval=15m&range=1d`;
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Referer: 'https://finance.yahoo.com/',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Yahoo Finance responded with ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('[stock-proxy] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/settings', async (req, res) => {
   try {
     const settings = await readDatabase();
