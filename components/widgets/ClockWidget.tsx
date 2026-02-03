@@ -23,7 +23,7 @@ const ClockWidget: React.FC<ClockWidgetProps> = ({ config }) => {
         </div>
       )}
       
-      <div className={`font-black tracking-tighter ${showSeconds ? 'text-5xl md:text-6xl' : 'text-6xl md:text-8xl'}`}>
+      <div className={`font-black tracking-tighter ${showSeconds ? 'text-5xl md:text-6xl 4xl:text-7xl' : 'text-6xl md:text-8xl 2xl:text-9xl 4xl:text-[10rem]'}`}>
         {time.toLocaleTimeString([], { 
             hour: '2-digit', 
             minute: '2-digit', 

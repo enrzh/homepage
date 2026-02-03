@@ -15,7 +15,7 @@ const defaultShortcuts: ShortcutLink[] = [
 
 const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   const isWide = config.colSpan === 2;
-  const maxItems = isWide ? 8 : 4;
+  const maxItems = isWide ? 12 : 4;
 
   const displayLinks = useMemo(() => {
     const links = config.links;
