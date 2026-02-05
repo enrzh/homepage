@@ -227,7 +227,7 @@ const App: React.FC = () => {
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
-            <div className="flex flex-col min-h-full w-full max-w-[1400px] mx-auto p-4 md:p-8 3xl:p-16 4xl:p-24 pb-32 md:pb-10 gap-6 md:gap-10 3xl:gap-16 4xl:gap-24">
+            <div className="flex flex-col min-h-full w-full mx-auto p-4 md:p-8 3xl:p-16 4xl:p-24 pb-32 md:pb-10 gap-6 md:gap-10 3xl:gap-16 4xl:gap-24">
                 
                 {/* Top Bar (Actions) - Made subtle */}
                 <div className="flex items-center justify-between gap-2 shrink-0">
@@ -255,7 +255,7 @@ const App: React.FC = () => {
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-3xl sm:text-5xl lg:text-6xl 4xl:text-8xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-7xl 4xl:max-w-[90%] hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3 4xl:py-6"
+                            className="text-3xl sm:text-5xl lg:text-6xl 4xl:text-8xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3 4xl:py-6"
                             placeholder="Dashboard Name"
                         />
                     </div>
@@ -284,7 +284,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -306,7 +306,7 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? 'col-span-1 sm:col-span-2' : 'col-span-1'}
+                                        col-span-1
                                         h-[180px] sm:h-[190px] md:h-[200px]
                                     `}
                                     as="li"
