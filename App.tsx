@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';import { Reorder, AnimatePresence, motion } from 'framer-motion';
+import { Settings, Activity, Search, Layout, ArrowUpDown, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
 import WeatherWidget from './components/widgets/WeatherWidget';
