@@ -284,7 +284,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -305,9 +305,10 @@ const App: React.FC = () => {
                                     }}
                                     layout
                                     className={`
-                                        relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? 'col-span-1 md:col-span-2' : 'col-span-1'}
-                                        h-[180px] sm:h-[190px] md:h-[200px]
+                                        relative group list-none rounded-lg w-full
+                                        ${widget.config.colSpan === 2
+                                            ? 'h-[180px] sm:h-[190px] md:h-[400px]'
+                                            : 'h-[180px] sm:h-[190px] md:h-[200px]'}
                                     `}
                                     as="li"
                                 >
@@ -335,8 +336,7 @@ const App: React.FC = () => {
 
         {/* Mobile Fixed Bottom Search Bar */}
         <div className={`
-            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-16
-            bg-gradient-to-t from-[#0b0e12] via-[#0b0e12]/80 to-transparent backdrop-blur-xl
+            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6
             flex justify-center pointer-events-none
         `}>
             <div className="w-full pointer-events-auto">
@@ -541,7 +541,7 @@ const EditConfigPanel: React.FC<{
                 {/* The Actual Widget Component */}
                 <div className={`
                     w-full max-w-[240px] md:max-w-[300px] aspect-square rounded-lg border border-white/10 shadow-xl overflow-hidden bg-black/10
-                    ${localConfig.colSpan === 2 ? 'aspect-[2/1] max-w-[400px] md:max-w-[500px]' : ''}
+                    ${localConfig.colSpan === 2 ? 'aspect-[3/4] md:max-w-[350px]' : ''}
                 `}>
                     {renderWidgetContent(previewWidget)}
                 </div>
@@ -591,7 +591,7 @@ const EditConfigPanel: React.FC<{
                                 className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${localConfig.colSpan === 2 ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
-                                <ArrowRightLeft className="w-4 h-4" /> <span className="text-sm">Wide</span>
+                                <ArrowUpDown className="w-4 h-4" /> <span className="text-sm">Large</span>
                             </button>
                         </div>
                     </div>
