@@ -284,7 +284,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -306,7 +306,7 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        col-span-1
+                                        ${widget.config.colSpan === 2 ? 'col-span-1 md:col-span-2' : 'col-span-1'}
                                         h-[180px] sm:h-[190px] md:h-[200px]
                                     `}
                                     as="li"
@@ -403,7 +403,7 @@ const WidgetCard: React.FC<{
             }}
             className={`
                 w-full h-full relative overflow-hidden border border-white/5 hover:border-white/20 transition-all
-                backdrop-blur-md bg-white/5 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]
+                backdrop-blur-md bg-white/5 md:shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]
                 hover:-translate-y-0.5 group rounded-lg
                 ${bgClass}
             `}
