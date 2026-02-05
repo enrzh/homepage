@@ -255,7 +255,7 @@ const App: React.FC = () => {
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-6xl 4xl:text-8xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-5xl 4xl:max-w-7xl hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3 4xl:py-6"
+                            className="text-4xl md:text-6xl 4xl:text-8xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-7xl 4xl:max-w-[90%] hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3 4xl:py-6"
                             placeholder="Dashboard Name"
                         />
                     </div>
@@ -284,7 +284,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 4xl:grid-cols-8 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">

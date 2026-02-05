@@ -79,7 +79,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ enablePreview }) => {
   const hasSuggestions = enablePreview && isFocused && suggestions.length > 0;
 
   return (
-    <div ref={containerRef} className="w-full max-w-4xl 4xl:max-w-6xl relative z-30">
+    <div ref={containerRef} className="w-full max-w-5xl 4xl:max-w-[80%] relative z-30">
       <div className="relative group">
         {/* Input Container */}
         <div className={`
