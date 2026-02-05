@@ -182,6 +182,20 @@ const App: React.FC = () => {
       setIsRetrying(false);
   };
 
+  const sortWidgets = (criteria: 'title' | 'type') => {
+    const sorted = [...widgets].sort((a, b) => {
+        if (criteria === 'title') {
+            const titleA = a.config.customTitle || a.title;
+            const titleB = b.config.customTitle || b.title;
+            return titleA.localeCompare(titleB);
+        } else {
+            return a.type.localeCompare(b.type);
+        }
+    });
+    setWidgets(sorted);
+    setWidgetOrder(buildWidgetOrder(sorted));
+  };
+
 
   const addWidget = (type: WidgetType) => {
     const newWidget: WidgetData = {
@@ -270,7 +284,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -292,7 +306,7 @@ const App: React.FC = () => {
                                     layout
                                     className={`
                                         relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
+                                        ${widget.config.colSpan === 2 ? 'col-span-1 sm:col-span-2' : 'col-span-1'}
                                         h-[180px] sm:h-[190px] md:h-[200px] 3xl:h-[240px] 4xl:h-[300px]
                                     `}
                                     as="li"
@@ -321,8 +335,8 @@ const App: React.FC = () => {
 
         {/* Mobile Fixed Bottom Search Bar */}
         <div className={`
-            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-12 
-            bg-gradient-to-t from-[#0b0e12] via-[#0b0e12] to-transparent
+            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-16
+            bg-gradient-to-t from-[#0b0e12] via-[#0b0e12]/80 to-transparent backdrop-blur-xl
             flex justify-center pointer-events-none
         `}>
             <div className="w-full pointer-events-auto">
@@ -360,6 +374,7 @@ const App: React.FC = () => {
             serverError={serverError}
             isRetrying={isRetrying}
             onRetrySync={retrySync}
+            onSort={sortWidgets}
         />
     </div>
   );
@@ -394,6 +409,13 @@ const WidgetCard: React.FC<{
             `}
         >
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5" />
+            {!isLocked && (
+                <div className="absolute top-2 left-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100 pointer-events-none">
+                     <div className="p-1.5 rounded-md bg-black/20 text-white/40">
+                         <GripVertical className="w-3 h-3" />
+                     </div>
+                </div>
+            )}
             {!isLocked && (
                 <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                      <button 
@@ -455,7 +477,14 @@ const EditConfigPanel: React.FC<{
     onClose: () => void;
     onRemove: () => void;
 }> = ({ widget, onUpdate, onClose, onRemove }) => {
-    
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     // Local state to prevent typing blocking and allow "Live Preview" without committing to App state immediately
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
@@ -489,7 +518,7 @@ const EditConfigPanel: React.FC<{
             className={`
                 pointer-events-auto
                 w-full max-w-5xl
-                h-full md:h-[650px] md:max-h-[90vh]
+                h-[100dvh] md:h-[650px]
                 flex flex-col md:flex-row
                 md:rounded-xl border-0 md:border border-white/10 shadow-2xl overflow-hidden
                 bg-[#0a0a0a]/90 backdrop-blur-2xl
@@ -500,7 +529,7 @@ const EditConfigPanel: React.FC<{
                 relative shrink-0 md:flex-1 p-8 md:p-12 flex flex-col items-center justify-center
                 ${tintConfig.class}
                 border-b md:border-b-0 md:border-r border-white/5
-                min-h-[260px] md:min-h-[300px]
+                min-h-[220px] md:min-h-[300px]
             `}>
                 <div className="absolute top-4 left-4 text-xs font-bold text-white/30 uppercase tracking-widest hidden md:block">Live Preview</div>
                 <div className="absolute top-4 right-4 md:hidden z-50">
