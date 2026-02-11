@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Settings, Activity, Search, Layout, ArrowRightLeft, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';import { Reorder, AnimatePresence, motion } from 'framer-motion';
+import { Settings, Activity, Search, Layout, ArrowUpDown, X, Trash2, GripVertical } from 'lucide-react';
+import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
 import WeatherWidget from './components/widgets/WeatherWidget';
@@ -182,7 +183,6 @@ const App: React.FC = () => {
       setIsRetrying(false);
   };
 
-
   const addWidget = (type: WidgetType) => {
     const newWidget: WidgetData = {
       id: uuidv4(),
@@ -209,25 +209,30 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[#0f1217] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-slate-400/20">
+    <div className="h-[100dvh] w-full bg-[#07101a] text-slate-100 font-sans overflow-hidden flex flex-col relative selection:bg-cyan-300/20">
+        <div className="pointer-events-none absolute inset-0 opacity-70">
+            <div className="absolute -top-36 left-1/2 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute -bottom-32 right-[-6rem] h-[28rem] w-[28rem] rounded-full bg-emerald-500/10 blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(15,23,42,0.35)_0%,rgba(2,6,23,0)_56%)]" />
+        </div>
 
         {/* Scrollable Main Content Area */}
         <div className="flex-1 overflow-y-auto w-full relative z-10 custom-scrollbar scroll-smooth">
-            <div className="flex flex-col min-h-full w-full p-4 md:p-8 3xl:p-16 4xl:p-24 pb-32 md:pb-10 gap-6 md:gap-10 3xl:gap-16 4xl:gap-24">
+            <div className="flex flex-col min-h-full w-full mx-auto p-4 md:p-8 3xl:p-16 4xl:p-24 pb-32 md:pb-10 gap-6 md:gap-10 3xl:gap-16 4xl:gap-24">
                 
                 {/* Top Bar (Actions) - Made subtle */}
                 <div className="flex items-center justify-between gap-2 shrink-0">
                     <div className="flex items-center gap-1">
                         <button 
                             onClick={() => setIsGlobalSettingsOpen(true)}
-                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/40 hover:text-white transition-colors active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-xl text-white/60 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/20 border border-cyan-200/20 backdrop-blur"
                             title="Settings"
                         >
                             <Settings className="w-6 h-6 md:w-5 md:h-5" />
                         </button>
                         <button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-md text-white/70 hover:text-white transition-colors active:scale-95 bg-white/10 hover:bg-white/15 border border-white/10"
+                            className="flex items-center justify-center w-11 h-11 md:w-10 md:h-10 rounded-xl text-white/80 hover:text-white transition-colors active:scale-95 bg-cyan-500/20 hover:bg-cyan-400/25 border border-cyan-200/30 backdrop-blur"
                             title="Add Widget"
                         >
                             <span className="text-2xl leading-none">+</span>
@@ -241,7 +246,7 @@ const App: React.FC = () => {
                         <input
                             value={appTitle}
                             onChange={(e) => setAppTitle(e.target.value)}
-                            className="text-4xl md:text-6xl 4xl:text-8xl font-semibold bg-white/5 text-center border border-white/10 outline-none text-white/90 placeholder-white/20 tracking-tight w-full max-w-5xl 4xl:max-w-7xl hover:bg-white/10 hover:border-white/20 focus:border-slate-300/40 rounded-lg transition-all px-4 md:px-6 py-3 4xl:py-6"
+                            className="text-3xl sm:text-5xl lg:text-6xl 4xl:text-8xl font-semibold bg-slate-900/30 text-center border border-cyan-200/20 outline-none text-white/90 placeholder-white/20 tracking-tight w-full hover:bg-slate-900/45 hover:border-cyan-200/35 focus:border-cyan-200/60 rounded-xl transition-all px-4 md:px-6 py-3 4xl:py-6 shadow-[0_10px_45px_rgba(6,182,212,0.15)]"
                             placeholder="Dashboard Name"
                         />
                     </div>
@@ -270,7 +275,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 gap-4 md:gap-6 list-none p-0 m-0"
+                        className="mx-auto grid w-full grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0 md:grid-cols-[repeat(auto-fill,minmax(340px,420px))] md:justify-center"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -291,9 +296,10 @@ const App: React.FC = () => {
                                     }}
                                     layout
                                     className={`
-                                        relative group list-none rounded-lg
-                                        ${widget.config.colSpan === 2 ? 'col-span-2' : 'col-span-1'}
-                                        h-[180px] sm:h-[190px] md:h-[200px] 3xl:h-[240px] 4xl:h-[300px]
+                                        relative group list-none rounded-xl w-full
+                                        ${widget.config.colSpan === 2
+                                            ? 'h-[180px] sm:h-[190px] md:h-[410px]'
+                                            : 'h-[180px] sm:h-[190px] md:h-[210px]'}
                                     `}
                                     as="li"
                                 >
@@ -321,8 +327,7 @@ const App: React.FC = () => {
 
         {/* Mobile Fixed Bottom Search Bar */}
         <div className={`
-            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-12 
-            bg-gradient-to-t from-[#0b0e12] via-[#0b0e12] to-transparent
+            md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6
             flex justify-center pointer-events-none
         `}>
             <div className="w-full pointer-events-auto">
@@ -387,13 +392,20 @@ const WidgetCard: React.FC<{
                 }
             }}
             className={`
-                w-full h-full relative overflow-hidden border border-white/5 hover:border-white/20 transition-all
-                backdrop-blur-md bg-white/5 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]
-                hover:-translate-y-0.5 group rounded-lg
+                w-full h-full relative overflow-hidden border border-cyan-200/10 hover:border-cyan-200/25 transition-all
+                backdrop-blur-xl bg-slate-900/30 md:shadow-xl hover:shadow-[0_12px_40px_rgba(6,182,212,0.18)]
+                hover:-translate-y-0.5 group rounded-xl
                 ${bgClass}
             `}
         >
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5" />
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-cyan-300/10 via-transparent to-emerald-300/10" />
+            {!isLocked && (
+                <div className="absolute top-2 left-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100 pointer-events-none">
+                     <div className="p-1.5 rounded-md bg-slate-950/40 text-white/40">
+                         <GripVertical className="w-3 h-3" />
+                     </div>
+                </div>
+            )}
             {!isLocked && (
                 <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                      <button 
@@ -455,7 +467,14 @@ const EditConfigPanel: React.FC<{
     onClose: () => void;
     onRemove: () => void;
 }> = ({ widget, onUpdate, onClose, onRemove }) => {
-    
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
+
     // Local state to prevent typing blocking and allow "Live Preview" without committing to App state immediately
     const [localConfig, setLocalConfig] = useState<WidgetConfig>(widget.config);
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
@@ -489,7 +508,7 @@ const EditConfigPanel: React.FC<{
             className={`
                 pointer-events-auto
                 w-full max-w-5xl
-                h-full md:h-[650px] md:max-h-[90vh]
+                h-[100dvh] md:h-[650px]
                 flex flex-col md:flex-row
                 md:rounded-xl border-0 md:border border-white/10 shadow-2xl overflow-hidden
                 bg-[#0a0a0a]/90 backdrop-blur-2xl
@@ -500,7 +519,7 @@ const EditConfigPanel: React.FC<{
                 relative shrink-0 md:flex-1 p-8 md:p-12 flex flex-col items-center justify-center
                 ${tintConfig.class}
                 border-b md:border-b-0 md:border-r border-white/5
-                min-h-[260px] md:min-h-[300px]
+                min-h-[220px] md:min-h-[300px]
             `}>
                 <div className="absolute top-4 left-4 text-xs font-bold text-white/30 uppercase tracking-widest hidden md:block">Live Preview</div>
                 <div className="absolute top-4 right-4 md:hidden z-50">
@@ -512,7 +531,7 @@ const EditConfigPanel: React.FC<{
                 {/* The Actual Widget Component */}
                 <div className={`
                     w-full max-w-[240px] md:max-w-[300px] aspect-square rounded-lg border border-white/10 shadow-xl overflow-hidden bg-black/10
-                    ${localConfig.colSpan === 2 ? 'aspect-[2/1] max-w-[400px] md:max-w-[500px]' : ''}
+                    ${localConfig.colSpan === 2 ? 'aspect-[3/4] md:max-w-[350px]' : ''}
                 `}>
                     {renderWidgetContent(previewWidget)}
                 </div>
@@ -562,7 +581,7 @@ const EditConfigPanel: React.FC<{
                                 className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${localConfig.colSpan === 2 ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
-                                <ArrowRightLeft className="w-4 h-4" /> <span className="text-sm">Wide</span>
+                                <ArrowUpDown className="w-4 h-4" /> <span className="text-sm">Large</span>
                             </button>
                         </div>
                     </div>

@@ -7,3 +7,10 @@ services:
       - "3033:3033"
     environment:
       PORT: "3033"
+      DB_FILE: "/data/settings.db"
+    volumes:
+      - homepage_data:/data
+    restart: unless-stopped
+
+volumes:
+  homepage_data:

@@ -27,3 +27,16 @@ the API (`npm run server`) alongside the Vite dev server. If you only want the f
 the app defaults to `/api/settings` so the Vite dev server proxy is used. The dev server proxies
 `/api` to `VITE_API_PROXY_TARGET` (default: `http://localhost:3034`). This uses the SQLite-backed
 `settings.db` by default (override with `DB_FILE`).
+
+## Docker Persistence (public-safe)
+
+Use the included `docker-compose.yaml` for persistent settings data:
+
+1. Build and run:
+   `docker compose up -d --build`
+2. Settings are stored at `/data/settings.db` inside the container using the named volume `homepage_data`.
+3. App restarts run a fresh frontend build on startup, but database content is preserved by the volume.
+
+Notes:
+- Do not commit runtime database files to the repository.
+- Keep secrets (for example `GEMINI_API_KEY`) in local env files only.

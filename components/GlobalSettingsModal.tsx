@@ -31,6 +31,14 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
   isRetrying,
   onRetrySync,
 }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const syncStatus = (() => {
@@ -47,21 +55,25 @@ const GlobalSettingsModal: React.FC<GlobalSettingsModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#111] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
+        className="w-full max-w-md bg-[#111] border-t md:border border-white/10 rounded-t-2xl md:rounded-lg shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
           <h2 className="text-lg font-semibold text-white">Dashboard Settings</h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-white/10 rounded-md text-white/60 hover:text-white transition-colors"
+            aria-label="Close settings"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
             {/* Title Setting */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
