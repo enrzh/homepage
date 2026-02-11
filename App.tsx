@@ -52,7 +52,7 @@ const renderWidgetContent = (widget: WidgetData, onEditRequest?: () => void) => 
     switch (widget.type) {
       case 'clock': return <ClockWidget config={widget.config} />;
       case 'weather': return <WeatherWidget config={widget.config} />;
-      case 'stocks': return <StockWidget config={widget.config} />;
+      case 'stocks': return <StockWidget config={widget.config} onEditRequest={onEditRequest} />;
       case 'shortcuts': return <ShortcutsWidget config={widget.config} onEditRequest={onEditRequest} />;
       default: return null;
     }
@@ -74,6 +74,11 @@ const App: React.FC = () => {
   const [canSync, setCanSync] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
   const saveQueueRef = useRef(Promise.resolve());
+  const loadControllerRef = useRef<AbortController | null>(null);
+  const loadSequenceRef = useRef(0);
+  const saveSequenceRef = useRef(0);
+  const skipNextDirtyMarkRef = useRef(false);
+  const hasLocalChangesRef = useRef(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isGlobalSettingsOpen, setIsGlobalSettingsOpen] = useState(false);
@@ -87,6 +92,7 @@ const App: React.FC = () => {
     enableSearchPreview: boolean;
     lockWidgets: boolean;
   }>) => {
+    skipNextDirtyMarkRef.current = true;
     const nextWidgets = (data.widgets ?? DEFAULT_WIDGETS)
       .map(ensureWidgetConfig);
     setWidgets(nextWidgets);
@@ -95,6 +101,7 @@ const App: React.FC = () => {
     setShowTitle(data.showTitle !== undefined ? data.showTitle : true);
     setEnableSearchPreview(data.enableSearchPreview !== undefined ? data.enableSearchPreview : true);
     setLockWidgets(data.lockWidgets !== undefined ? data.lockWidgets : false);
+    hasLocalChangesRef.current = false;
   }, []);
 
   const fetchSettings = useCallback(async () => {
@@ -106,19 +113,30 @@ const App: React.FC = () => {
         return;
       }
 
+      loadControllerRef.current?.abort();
+      const controller = new AbortController();
+      loadControllerRef.current = controller;
+      const sequence = ++loadSequenceRef.current;
+
       try {
-          const res = await fetch(API_URL);
+          const res = await fetch(API_URL, { signal: controller.signal, cache: 'no-store' });
           if (!res.ok) throw new Error('Failed to fetch settings');
           const data = await res.json();
+          if (sequence !== loadSequenceRef.current) return;
 
-          applySettings(data);
+          if (!hasLocalChangesRef.current) {
+            applySettings(data);
+          }
 
           setIsLoaded(true);
           setServerError(false);
           setCanSync(true);
       } catch (err) {
+          if (controller.signal.aborted) return;
           console.error(err);
-          applySettings({});
+          if (!hasLocalChangesRef.current) {
+            applySettings({});
+          }
           setIsLoaded(true);
           setServerError(true);
           setCanSync(false);
@@ -129,28 +147,50 @@ const App: React.FC = () => {
     fetchSettings();
   }, [fetchSettings]);
 
+  useEffect(() => {
+    return () => {
+      loadControllerRef.current?.abort();
+    };
+  }, []);
+
   const saveData = useCallback(async (payload: {
     widgets: WidgetData[];
     appTitle: string;
     showTitle: boolean;
     enableSearchPreview: boolean;
     lockWidgets: boolean;
-  }) => {
+  }, sequence: number) => {
     if (!API_URL || !canSync) return;
 
     try {
-        await fetch(API_URL, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+        if (!response.ok) {
+          throw new Error(`Failed to save settings (${response.status})`);
+        }
+        if (sequence === saveSequenceRef.current) {
+          hasLocalChangesRef.current = false;
+        }
         setServerError(false);
     } catch (err) {
         console.error("Failed to save:", err);
+        hasLocalChangesRef.current = true;
         setServerError(true);
         setCanSync(false);
     }
   }, [canSync]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (skipNextDirtyMarkRef.current) {
+      skipNextDirtyMarkRef.current = false;
+      return;
+    }
+    hasLocalChangesRef.current = true;
+  }, [widgets, appTitle, showTitle, enableSearchPreview, lockWidgets, isLoaded]);
 
   // Save Settings to Server (Debounced)
   useEffect(() => {
@@ -164,8 +204,9 @@ const App: React.FC = () => {
             enableSearchPreview,
             lockWidgets
         };
+        const sequence = ++saveSequenceRef.current;
 
-        saveQueueRef.current = saveQueueRef.current.then(() => saveData(payload));
+        saveQueueRef.current = saveQueueRef.current.then(() => saveData(payload, sequence));
     }, 500);
 
     return () => clearTimeout(timer);
@@ -275,7 +316,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="mx-auto grid w-full grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0 md:grid-cols-[repeat(auto-fill,minmax(340px,420px))] md:justify-center"
+                        className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -298,8 +339,8 @@ const App: React.FC = () => {
                                     className={`
                                         relative group list-none rounded-xl w-full
                                         ${widget.config.colSpan === 2
-                                            ? 'h-[180px] sm:h-[190px] md:h-[424px]'
-                                            : 'h-[180px] sm:h-[190px] md:h-[200px]'}
+                                            ? 'h-[180px] sm:h-[190px] md:h-[200px] md:col-span-2'
+                                            : 'h-[180px] sm:h-[190px] md:h-[200px] md:col-span-1'}
                                     `}
                                     as="li"
                                 >
@@ -406,7 +447,7 @@ const WidgetCard: React.FC<{
                 </div>
             )}
             {!isLocked && (
-                <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+                <div className="absolute top-2 right-2 z-20 flex gap-1 transition-opacity duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100">
                      <button 
                             onClick={(e) => { 
                                 e.stopPropagation();
@@ -479,9 +520,11 @@ const EditConfigPanel: React.FC<{
     const [localTitle, setLocalTitle] = useState(widget.config.customTitle || '');
     // Direct update wrapper for toggles/selectors
     const updateConfigImmediate = (updates: Partial<WidgetConfig>) => {
-        const newConfig = { ...localConfig, ...updates };
-        setLocalConfig(newConfig);
-        onUpdate({ config: newConfig });
+        setLocalConfig((prev) => {
+            const nextConfig = { ...prev, ...updates };
+            onUpdate({ config: nextConfig });
+            return nextConfig;
+        });
     };
 
     // Debounced update for Title
@@ -492,7 +535,7 @@ const EditConfigPanel: React.FC<{
             }
         }, 500);
         return () => clearTimeout(timer);
-    }, [localTitle]);
+    }, [localTitle, localConfig, onUpdate, widget.config.customTitle]);
 
     // Construct a temporary widget object for the Live Preview
     const previewWidget: WidgetData = {
@@ -530,7 +573,7 @@ const EditConfigPanel: React.FC<{
                 {/* The Actual Widget Component */}
                 <div className={`
                     w-full max-w-[240px] md:max-w-[300px] aspect-square rounded-lg border border-white/10 shadow-xl overflow-hidden bg-black/10
-                    ${localConfig.colSpan === 2 ? 'aspect-[3/4] md:max-w-[350px]' : ''}
+                    ${localConfig.colSpan === 2 ? 'md:max-w-[460px]' : ''}
                 `}>
                     {renderWidgetContent(previewWidget)}
                 </div>
@@ -566,21 +609,21 @@ const EditConfigPanel: React.FC<{
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-8 pb-24 md:pb-8">
                     {/* Appearance Size */}
                     <div className="space-y-4">
-                         <label className="text-xs font-bold text-white/30 uppercase tracking-widest">Layout</label>
+                         <label className="text-xs font-bold text-white/30 uppercase tracking-widest">Width (Desktop & Tablet)</label>
                          <div className="grid grid-cols-2 gap-3">
                             <button 
                                 onClick={() => updateConfigImmediate({ colSpan: 1 })}
                                 className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${(!localConfig.colSpan || localConfig.colSpan === 1) ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
-                                <Layout className="w-4 h-4" /> <span className="text-sm">Regular</span>
+                                <Layout className="w-4 h-4" /> <span className="text-sm">Regular Width</span>
                             </button>
                             <button 
                                 onClick={() => updateConfigImmediate({ colSpan: 2 })}
                                 className={`flex items-center justify-center gap-2 py-3 rounded-lg border transition-all
                                 ${localConfig.colSpan === 2 ? 'bg-white/10 border-white/30 text-white' : 'border-white/5 text-white/40 hover:bg-white/5'}`}
                             >
-                                <ArrowUpDown className="w-4 h-4" /> <span className="text-sm">Large</span>
+                                <ArrowUpDown className="w-4 h-4" /> <span className="text-sm">Wide Width</span>
                             </button>
                         </div>
                     </div>

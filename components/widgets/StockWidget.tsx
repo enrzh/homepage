@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AreaChart, Area, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
-import { TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw, AlertCircle, Settings } from 'lucide-react';
 import { StockData, WidgetConfig } from '../../types';
 
 interface StockWidgetProps {
   config: WidgetConfig;
+  onEditRequest?: () => void;
 }
 
 const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
@@ -39,10 +40,11 @@ const TradingViewWidget: React.FC<{ symbol: string }> = ({ symbol }) => {
   );
 };
 
-const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
+const StockWidget: React.FC<StockWidgetProps> = ({ config, onEditRequest }) => {
   const symbol = config.symbol || 'SPY';
   const dataSource = config.dataSource || 'yahoo';
   const refreshIntervalMs = 60_000;
+  const fetchControllerRef = useRef<AbortController | null>(null);
   const [data, setData] = useState<StockData[]>([]);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [previousClose, setPreviousClose] = useState<number | null>(null);
@@ -51,13 +53,16 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
 
   const fetchData = async () => {
     if (dataSource === 'tradingview') return;
+    fetchControllerRef.current?.abort();
+    const controller = new AbortController();
+    fetchControllerRef.current = controller;
     setLoading(true);
     setError(null);
     try {
       const querySymbol = symbol.toUpperCase();
       const proxyUrl = `/api/stock-proxy?symbol=${querySymbol}`;
       
-      const response = await fetch(proxyUrl);
+      const response = await fetch(proxyUrl, { signal: controller.signal, cache: 'no-store' });
       if (!response.ok) throw new Error('Network response was not ok');
       
       const json = await response.json();
@@ -93,18 +98,24 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
       setCurrentPrice(meta.regularMarketPrice);
       setPreviousClose(meta.previousClose);
     } catch (err) {
+      if (controller.signal.aborted) return;
       console.error("Stock fetch error:", err);
       setError("Failed to load data");
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, refreshIntervalMs); 
-    return () => clearInterval(interval);
-  }, [symbol, refreshIntervalMs]);
+    return () => {
+      clearInterval(interval);
+      fetchControllerRef.current?.abort();
+    };
+  }, [symbol, dataSource, refreshIntervalMs]);
 
   const isPositive = currentPrice && previousClose ? currentPrice >= previousClose : true;
   const percentChange = currentPrice && previousClose 
@@ -113,7 +124,27 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
   const priceChange = currentPrice && previousClose ? currentPrice - previousClose : 0;
 
   if (dataSource === 'tradingview') {
-    return <TradingViewWidget symbol={symbol} />;
+    return (
+      <div className="h-full w-full relative">
+        <TradingViewWidget symbol={symbol} />
+        {onEditRequest && (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEditRequest();
+            }}
+            className="absolute top-2 right-2 z-30 rounded-md border border-white/20 bg-black/50 p-1.5 text-white/75 hover:bg-black/70 hover:text-white transition-colors"
+            title="Edit stock widget"
+            aria-label="Edit stock widget"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+    );
   }
 
   if (error) {
@@ -158,6 +189,22 @@ const StockWidget: React.FC<StockWidgetProps> = ({ config }) => {
                     {priceChange > 0 ? '+' : ''}{priceChange.toFixed(2)}
                 </div>
             </div>
+            {onEditRequest && (
+                <button
+                    type="button"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onEditRequest();
+                    }}
+                    className="rounded-md border border-white/10 bg-black/30 p-1.5 text-white/60 hover:bg-black/50 hover:text-white transition-colors"
+                    title="Edit stock widget"
+                    aria-label="Edit stock widget"
+                >
+                    <Settings className="w-3.5 h-3.5" />
+                </button>
+            )}
         </div>
       
         {/* Chart */}

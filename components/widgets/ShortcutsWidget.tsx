@@ -15,8 +15,7 @@ const defaultShortcuts: ShortcutLink[] = [
 ];
 
 const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest }) => {
-  const isWide = config.colSpan === 2;
-  const maxItems = isWide ? 12 : 4;
+  const maxItems = 4;
 
   const displayLinks = useMemo(() => {
     const links = config.links;
@@ -48,6 +47,7 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest
           {onEditRequest && (
             <button
               type="button"
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
