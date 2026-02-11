@@ -316,7 +316,7 @@ const App: React.FC = () => {
                             setWidgetOrder(nextOrder);
                             setWidgets((prev) => reorderWidgets(prev, nextOrder));
                         }} 
-                        className="mx-auto grid w-full max-w-[1800px] grid-cols-1 gap-4 md:gap-6 list-none p-0 m-0 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                        className="mx-auto flex w-full flex-wrap justify-center gap-4 md:gap-6 list-none p-0 m-0"
                         as="ul"
                     >
                         <AnimatePresence mode="popLayout">
@@ -337,10 +337,10 @@ const App: React.FC = () => {
                                     }}
                                     layout
                                     className={`
-                                        relative group list-none rounded-xl w-full
+                                        relative group list-none rounded-xl w-full md:shrink-0
                                         ${widget.config.colSpan === 2
-                                            ? 'h-[180px] sm:h-[190px] md:h-[200px] md:col-span-2'
-                                            : 'h-[180px] sm:h-[190px] md:h-[200px] md:col-span-1'}
+                                            ? 'h-[180px] sm:h-[190px] md:h-[200px] md:w-[calc((clamp(340px,30vw,420px)*2)+1.5rem)]'
+                                            : 'h-[180px] sm:h-[190px] md:h-[200px] md:w-[clamp(340px,30vw,420px)]'}
                                     `}
                                     as="li"
                                 >
