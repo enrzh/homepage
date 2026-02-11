@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Settings, Activity, Search, Layout, ArrowUpDown, X, Trash2, GripVertical } from 'lucide-react';
+import { Settings, Activity, Search, Layout, ArrowUpDown, Check, X, Trash2, Save, Pencil, GripVertical, Plus } from 'lucide-react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import { WidgetData, WidgetType, ShortcutLink, WidgetConfig } from './types';
 import SearchBar from './components/SearchBar';
@@ -48,12 +48,12 @@ const reorderWidgets = (items: WidgetData[], order: string[]) => {
 };
 
 // Standalone render function for use in App and Editor
-const renderWidgetContent = (widget: WidgetData) => {
+const renderWidgetContent = (widget: WidgetData, onEditRequest?: () => void) => {
     switch (widget.type) {
       case 'clock': return <ClockWidget config={widget.config} />;
       case 'weather': return <WeatherWidget config={widget.config} />;
       case 'stocks': return <StockWidget config={widget.config} />;
-      case 'shortcuts': return <ShortcutsWidget config={widget.config} />;
+      case 'shortcuts': return <ShortcutsWidget config={widget.config} onEditRequest={onEditRequest} />;
       default: return null;
     }
 };
@@ -298,20 +298,19 @@ const App: React.FC = () => {
                                     className={`
                                         relative group list-none rounded-xl w-full
                                         ${widget.config.colSpan === 2
-                                            ? 'h-[180px] sm:h-[190px] md:h-[410px]'
-                                            : 'h-[180px] sm:h-[190px] md:h-[210px]'}
+                                            ? 'h-[180px] sm:h-[190px] md:h-[424px]'
+                                            : 'h-[180px] sm:h-[190px] md:h-[200px]'}
                                     `}
                                     as="li"
                                 >
                                     <div className={`w-full h-full transition-opacity duration-300 ${isBeingEdited ? 'opacity-0' : 'opacity-100'}`}>
                                          <WidgetCard 
                                             widget={widget} 
-                                            onRemove={() => removeWidget(widget.id)}
                                             onEditStart={() => setEditingWidgetId(widget.id)}
                                             layoutId={`widget-container-${widget.id}`}
                                             isLocked={lockWidgets}
                                         >
-                                            {renderWidgetContent(widget)}
+                                            {renderWidgetContent(widget, () => setEditingWidgetId(widget.id))}
                                         </WidgetCard>
                                     </div>
                                     {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-lg border border-white/5" />}
@@ -379,7 +378,7 @@ const WidgetCard: React.FC<{
     onEditStart: () => void;
     layoutId: string;
     isLocked: boolean;
-}> = ({ widget, children, onRemove, onEditStart, layoutId, isLocked }) => {
+}> = ({ widget, children, onEditStart, layoutId, isLocked }) => {
     const tintConfig = TINTS.find(t => t.id === widget.config.tint) || TINTS[0];
     const bgClass = tintConfig.class;
 

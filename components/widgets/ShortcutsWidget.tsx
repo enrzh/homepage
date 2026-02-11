@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Settings } from 'lucide-react';
 import { ShortcutLink, WidgetConfig } from '../../types';
 
 interface ShortcutsWidgetProps {
   config: WidgetConfig;
+  onEditRequest?: () => void;
 }
 
 const defaultShortcuts: ShortcutLink[] = [
@@ -13,7 +14,7 @@ const defaultShortcuts: ShortcutLink[] = [
   { id: '4', title: 'Spotify', url: 'https://spotify.com' },
 ];
 
-const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
+const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest }) => {
   const isWide = config.colSpan === 2;
   const maxItems = isWide ? 12 : 4;
 
@@ -42,7 +43,24 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
         <h3 className="text-[11px] font-semibold text-white/50 uppercase tracking-[0.2em]">
           {title}
         </h3>
-        <span className="text-[10px] text-white/30 font-medium">{displayLinks.length}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-white/30 font-medium">{displayLinks.length}</span>
+          {onEditRequest && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onEditRequest();
+              }}
+              className="rounded-md border border-white/15 bg-white/10 p-1 text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+              aria-label="Edit quick links widget"
+              title="Edit quick links"
+            >
+              <Settings className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <div
         className={`grid grid-cols-2 gap-2 md:gap-3 flex-1 items-stretch`}
