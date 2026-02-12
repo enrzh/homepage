@@ -34,9 +34,9 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   }, [config.links, maxItems]);
 
   return (
-    <div className="h-full flex flex-col p-4 text-white gap-4">
+    <div className="h-full flex items-center justify-center p-4 text-white">
       <div
-        className="grid grid-cols-2 gap-2 md:gap-3 items-stretch content-start md:flex-1"
+        className="grid h-full w-full grid-cols-2 gap-2 md:gap-3 items-stretch place-content-center"
       >
         {displayLinks.map((sc) => (
           <a
