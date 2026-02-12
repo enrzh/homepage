@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
-import { Globe, Settings } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { ShortcutLink, WidgetConfig } from '../../types';
 
 interface ShortcutsWidgetProps {
   config: WidgetConfig;
-  onEditRequest?: () => void;
 }
 
 const defaultShortcuts: ShortcutLink[] = [
@@ -14,7 +13,7 @@ const defaultShortcuts: ShortcutLink[] = [
   { id: '4', title: 'Spotify', url: 'https://spotify.com' },
 ];
 
-const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest }) => {
+const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config }) => {
   const maxItems = 4;
 
   const displayLinks = useMemo(() => {
@@ -34,34 +33,8 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest
     });
   }, [config.links, maxItems]);
 
-  const title = config.customTitle || 'Quick Links';
-
   return (
     <div className="h-full flex flex-col p-4 text-white gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-[11px] font-semibold text-white/50 uppercase tracking-[0.2em]">
-          {title}
-        </h3>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-white/30 font-medium">{displayLinks.length}</span>
-          {onEditRequest && (
-            <button
-              type="button"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onEditRequest();
-              }}
-              className="rounded-md border border-white/15 bg-white/10 p-1 text-white/70 transition-colors hover:bg-white/20 hover:text-white"
-              aria-label="Edit quick links widget"
-              title="Edit quick links"
-            >
-              <Settings className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
       <div
         className="grid grid-cols-2 gap-2 md:gap-3 items-stretch content-start md:flex-1"
       >

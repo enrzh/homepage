@@ -53,7 +53,7 @@ const renderWidgetContent = (widget: WidgetData, onEditRequest?: () => void) => 
       case 'clock': return <ClockWidget config={widget.config} />;
       case 'weather': return <WeatherWidget config={widget.config} />;
       case 'stocks': return <StockWidget config={widget.config} onEditRequest={onEditRequest} />;
-      case 'shortcuts': return <ShortcutsWidget config={widget.config} onEditRequest={onEditRequest} />;
+      case 'shortcuts': return <ShortcutsWidget config={widget.config} />;
       default: return null;
     }
 };
