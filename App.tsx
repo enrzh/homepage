@@ -351,7 +351,10 @@ const App: React.FC = () => {
                                             layoutId={`widget-container-${widget.id}`}
                                             isLocked={lockWidgets}
                                         >
-                                            {renderWidgetContent(widget, () => setEditingWidgetId(widget.id))}
+                                            {renderWidgetContent(
+                                                widget,
+                                                lockWidgets ? undefined : () => setEditingWidgetId(widget.id),
+                                            )}
                                         </WidgetCard>
                                     </div>
                                     {isBeingEdited && <div className="absolute inset-0 bg-white/5 rounded-lg border border-white/5" />}

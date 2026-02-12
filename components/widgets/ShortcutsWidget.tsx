@@ -63,13 +63,13 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest
         </div>
       </div>
       <div
-        className={`grid grid-cols-2 gap-2 md:gap-3 flex-1 items-stretch`}
+        className="grid grid-cols-2 gap-2 md:gap-3 items-stretch content-start md:flex-1"
       >
         {displayLinks.map((sc) => (
           <a
             key={sc.id}
             href={sc.url}
-            className="group flex h-full items-center gap-3 rounded-md border border-white/5 bg-white/0 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-white/5 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 shadow-sm"
+            className="group flex min-h-[60px] items-center gap-3 rounded-md border border-white/5 bg-white/0 px-3 py-2.5 md:px-4 md:py-3 text-left transition-all hover:border-white/20 hover:bg-white/5 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 shadow-sm"
             title={sc.title}
             onPointerDown={(e) => e.stopPropagation()}
           >
@@ -85,11 +85,11 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest
               />
               <Globe className="w-4 h-4 text-white/40 hidden" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-white/90 truncate">
+            <div className="flex-1 min-w-0 flex flex-col justify-center">
+              <div className="text-xs font-semibold text-white/90 truncate leading-tight">
                 {sc.title}
               </div>
-              <div className="text-[10px] text-white/30 truncate">
+              <div className="text-[10px] text-white/30 truncate leading-tight mt-0.5">
                 {sc.hostname}
               </div>
             </div>
