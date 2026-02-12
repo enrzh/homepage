@@ -69,8 +69,6 @@ const ShortcutsWidget: React.FC<ShortcutsWidgetProps> = ({ config, onEditRequest
           <a
             key={sc.id}
             href={sc.url}
-            target="_blank"
-            rel="noopener noreferrer"
             className="group flex h-full items-center gap-3 rounded-md border border-white/5 bg-white/0 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-white/5 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 shadow-sm"
             title={sc.title}
             onPointerDown={(e) => e.stopPropagation()}
